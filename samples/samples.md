@@ -1,0 +1,1 @@
+Folder for sample output HTML files for static testing CSS styles and integration into larger sites.
