@@ -4,5 +4,5 @@
 <div id="podpub-series-info">
   <h1><?= $series['title']; ?></h1>
   <p><?= $series['longdesc']; ?></p>
-  <a href="feed.rss">RSS feed</a>
+  <a href="feed.rss">RSS feed</a><?php //get from db ?>
 </div>

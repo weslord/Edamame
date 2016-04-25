@@ -25,8 +25,7 @@
     <language><?= $series['language'] ?></language>
 
     <?php
-      $episodes->reset();
-      while ($episode = $episodes->fetchArray(SQLITE3_ASSOC)) {
+      while ($episode = $episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT)) {
     ?>
 
     <item>

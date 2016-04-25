@@ -1,7 +1,6 @@
 <?php
   require_once 'db.php';
-  $episodes->reset();
-  $lastepisode = $episodes->fetchArray();
+  $lastepisode = $episodes->fetch(PDO::FETCH_ASSOC);
 ?>
 <div>
   <h1>Admin Dashboard</h1>
