@@ -4,6 +4,7 @@ body{
 }
 h2{
   margin-top:0.25em;
+  margin-bottom:0.25em;
 }
 .podpub-episode{
   border-top:1px solid #bcd;
@@ -12,11 +13,11 @@ h2{
 }
 .podpub-longdesc{
   padding-left:1em;
+  padding-top:0.5em;
 }
 .podpub-mediaurl{
   padding-left:1em;
 }
-
 
 input[type="text"],
 input[type="email"],
