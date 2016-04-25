@@ -3,6 +3,6 @@
 ?>
 <div id="podpub-series-info">
   <h1><?= $series['title']; ?></h1>
-  <p><?= $series['shortdesc']; ?></p>
+  <p><?= $series['longdesc']; ?></p>
   <a href="feed.rss">RSS feed</a>
 </div>

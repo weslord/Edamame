@@ -1,0 +1,49 @@
+<?php
+  // change date formatter to object-oriented version
+  // validate db results for correctishness (eg, correct date ranges, etc)?
+  require 'db.php';
+
+?>
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
+  <channel>
+    <title><?= $series['title'] ?></title>
+    <link><?= $series['url'] ?></link>
+    <copyright><?= $series['copyright'] ?></copyright>
+    <itunes:author><?= $series['artist'] ?></itunes:author>
+    <itunes:owner>
+      <itunes:name><?= $series['owner'] ?></itunes:name>
+      <itunes:email><?= $series['email'] ?></itunes:email>
+    </itunes:owner>
+    <itunes:subtitle><?= $series['shortdesc'] ?></itunes:subtitle>
+    <itunes:summary><?= $series['longdesc'] ?></itunes:summary>
+    <description><?= $series['longdesc'] ?></description>
+    <itunes:image href="<?= $series['imageurl'] ?>" />
+    <itunes:category text="<?= $series['category'] ?>"> <!-- need some processing here for subcategory -->
+    </itunes:category>
+    <itunes:explicit><?= $series['explicit'] ?></itunes:explicit>
+    <language><?= $series['language'] ?></language>
+
+    <?php
+      $episodes->reset();
+      while ($episode = $episodes->fetchArray(SQLITE3_ASSOC)) {
+    ?>
+
+    <item>
+      <title><?= $episode['number'] ?> - <?= $episode["title"]; ?></title>
+      <itunes:author><?= $episode['artist'] ?></itunes:author>
+      <itunes:subtitle><?= $episode['shortdesc'] ?></itunes:subtitle>
+      <itunes:summary><?= $episode['longdesc'] ?></itunes:summary>
+      <itunes:image href="<?= $episode['imageurl'] ?>" />
+      <enclosure url="<?= $episode['mediaurl'] ?>" length="<?= $episode['mediasize'] ?>" type="audio/mpeg" />
+      <guid><?= $episode['mediaurl'] ?></guid>
+      <pubDate><?= date(DATE_RSS, $episode['timestamp']); ?></pubDate>
+      <itunes:duration><?= $episode['duration'] ?></itunes:duration>
+    </item>
+
+   <?php
+    }
+   ?>
+
+  </channel>
+</rss>

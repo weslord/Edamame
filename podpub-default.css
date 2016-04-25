@@ -1,0 +1,30 @@
+body{
+  margin-left:2em;
+  margin-right:2em;
+}
+h2{
+  margin-top:0.25em;
+}
+.podpub-episode{
+  border-top:1px solid #bcd;
+  margin-top:1em;
+  padding:0.5em;
+}
+.podpub-longdesc{
+  padding-left:1em;
+}
+.podpub-mediaurl{
+  padding-left:1em;
+}
+
+
+input[type="text"],
+input[type="email"],
+select{
+  display:block;
+  width:250px;
+}
+textarea{
+  width:250px;
+  height:125px;
+}
