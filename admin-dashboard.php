@@ -6,23 +6,23 @@
   <h1>Admin Dashboard</h1>
   <div>
     <h2>Series Info</h2>
-    <form>
-      <label>Title<input type="text" value="<?= $series['title'] ?>"/></label><br>
-      <label>Artist<input type="text" value="<?= $series['artist']?>"/></label><br>
-      <label>Copyright<input type="text" value="<?= $series['copyright']?>"/></label><br>
-      <label>Main site URL<input type="text" value="<?= $series['url']?>"/></label><br>
-      <label>Admin contact<input type="text" value="<?= $series['owner']?>"/></label><br>
-      <label>Admin email<input type="email" value="<?= $series['email']?>"/></label><br>
-      <label>Short description<input type="text" value="<?= $series['shortdesc']?>"/></label><br>
+    <form method="post" action="write.php">
+      <label>Title<input name="title" type="text" value="<?= $series['title'] ?>"/></label><br>
+      <label>Artist<input name="artist" type="text" value="<?= $series['artist']?>"/></label><br>
+      <label>Copyright<input name="copyright" type="text" value="<?= $series['copyright']?>"/></label><br>
+      <label>Main site URL<input name="url" type="text" value="<?= $series['url']?>"/></label><br>
+      <label>Admin contact<input name="owner" type="text" value="<?= $series['owner']?>"/></label><br>
+      <label>Admin email<input name="email" type="email" value="<?= $series['email']?>"/></label><br>
+      <label>Short description<input name="shortdesc" type="text" value="<?= $series['shortdesc']?>"/></label><br>
       <label>Long description<br>
-        <textarea placeholder="<?= $series['shortdesc']?>"><?= $series['longdesc']?></textarea>
+        <textarea name="longdesc" placeholder="<?= $series['shortdesc']?>"><?= $series['longdesc']?></textarea>
       </label><br>
       <label>Cover image<br>
         <input type="file" accept="image/*"/><br>
         <img src="<?= $series['imageurl']?>" width="250px" height="250px"/>
       </label><br>
       <label>Category
-        <select><?php // loop thru, populating with options, add selected to db match, populate appropriate subcategory ?>
+        <select name="category"><?php // loop thru, populating with options, add selected to db match, populate appropriate subcategory ?>
           <option></option>
           <option>Arts</option>
           <option>Business</option>
@@ -44,13 +44,13 @@
       </label><br>
 <?php /*
       <label>Subcategory
-        <select disabled>
+        <select name="subcategory" disabled>
           <option></option>
         </select>
       </label><br>
 */ ?>
       <label>Language<br>
-        <select>
+        <select name="language">
           <option value="zh-Hans">Chinese (Simplified)</option>
           <option value="zh-Hant">Chinese (Traditional)</option>
           <option value="da"     >Danish</option>
@@ -90,22 +90,25 @@
 
   <div>
     <h2>Add Episode</h2>
-    <label>Episode #<input type="text" value="<?= $lastepisode['number']+1; ?>"/></label><br>
-    <label>Episode title: <input type="text" value="<?= $series['title']; ?>"/></label><br>
-    <label>Artist: <input type="text" value="<?= $series['artist']; ?>"/></label><br>
-    <label>Short description: <input type="text" value="<?= $series['shortdesc']; ?>"/></label><br>
-      <label>Long description<br>
-        <textarea placeholder="<?= $series['shortdesc']?>"><?= $series['longdesc']?></textarea>
+    <form>
+      <label>Episode #<input type="text" value="<?= $lastepisode['number']+1; ?>"/></label><br>
+      <label>Episode title: <input type="text" value="<?= $series['title']; ?>"/></label><br>
+      <label>Artist: <input type="text" value="<?= $series['artist']; ?>"/></label><br>
+      <label>Short description: <input type="text" value="<?= $series['shortdesc']; ?>"/></label><br>
+        <label>Long description<br>
+          <textarea placeholder="<?= $series['shortdesc']?>"><?= $series['longdesc']?></textarea>
+        </label><br>
+      <label>Cover image<br>
+        <input type="file" accept="image/*"/><br>
+        <img width='250px' height='250px' src='<?= $series['imageurl'] ?>' />
       </label><br>
-    <label>Cover image<br>
-      <input type="file" accept="image/*"/><br>
-      <img width='250px' height='250px' src='<?= $series['imageurl'] ?>' />
-    </label><br>
-    <label>MP3 File:<br>
-      <input type="file" accept="audio/mpeg"/>
-    </label><br>
-    <label>Timestamp: <input type="text" value="<?=  date('l F jS, Y'); //['timestamp'] ?>"/></label><br>
-    <label>Length: (HH:MM:SS)<input type="text" value="<?php //['duration'] ?>"/></label>
+      <label>MP3 File:<br>
+        <input type="file" accept="audio/mpeg"/>
+      </label><br>
+      <label>Timestamp: <input type="text" value="<?=  date('l F jS, Y'); //['timestamp'] ?>"/></label><br>
+      <label>Length: (HH:MM:SS)<input type="text" value="<?php //['duration'] ?>"/></label><br>
+      <input type="submit" />
+    </form>
   </div>
 </div>
 
