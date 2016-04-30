@@ -7,22 +7,22 @@
   <div>
     <h2>Series Info</h2>
     <form method="post" action="write.php">
-      <label>Title<input name="title" type="text" value="<?= $series['title'] ?>"/></label><br>
-      <label>Artist<input name="artist" type="text" value="<?= $series['artist']?>"/></label><br>
-      <label>Copyright<input name="copyright" type="text" value="<?= $series['copyright']?>"/></label><br>
-      <label>Main site URL<input name="url" type="text" value="<?= $series['url']?>"/></label><br>
-      <label>Admin contact<input name="owner" type="text" value="<?= $series['owner']?>"/></label><br>
-      <label>Admin email<input name="email" type="email" value="<?= $series['email']?>"/></label><br>
-      <label>Short description<input name="shortdesc" type="text" value="<?= $series['shortdesc']?>"/></label><br>
+      <label>Title<input name="series-title" type="text" value="<?= $series['title'] ?>"/></label><br>
+      <label>Artist<input name="series-artist" type="text" value="<?= $series['artist']?>"/></label><br>
+      <label>Copyright<input name="series-copyright" type="text" value="<?= $series['copyright']?>"/></label><br>
+      <label>Main site URL<input name="series-url" type="text" value="<?= $series['url']?>"/></label><br>
+      <label>Admin contact<input name="series-owner" type="text" value="<?= $series['owner']?>"/></label><br>
+      <label>Admin email<input name="series-email" type="email" value="<?= $series['email']?>"/></label><br>
+      <label>Short description<input name="series-shortdesc" type="text" value="<?= $series['shortdesc']?>"/></label><br>
       <label>Long description<br>
-        <textarea name="longdesc" placeholder="<?= $series['shortdesc']?>"><?= $series['longdesc']?></textarea>
+        <textarea name="series-longdesc" placeholder="<?= $series['shortdesc']?>"><?= $series['longdesc']?></textarea>
       </label><br>
       <label>Cover image<br>
-        <input type="file" accept="image/*"/><br>
+        <input name="series-imageurl" type="file" accept="image/*"/><br>
         <img src="<?= $series['imageurl']?>" width="250px" height="250px"/>
       </label><br>
       <label>Category
-        <select name="category"><?php // loop thru, populating with options, add selected to db match, populate appropriate subcategory ?>
+        <select name="series-category"><?php // loop thru, populating with options, add selected to db match, populate appropriate subcategory ?>
           <option></option>
           <option>Arts</option>
           <option>Business</option>
@@ -44,13 +44,13 @@
       </label><br>
 <?php /*
       <label>Subcategory
-        <select name="subcategory" disabled>
+        <select name="series-subcategory" disabled>
           <option></option>
         </select>
       </label><br>
 */ ?>
       <label>Language<br>
-        <select name="language">
+        <select name="series-language">
           <option value="zh-Hans">Chinese (Simplified)</option>
           <option value="zh-Hant">Chinese (Traditional)</option>
           <option value="da"     >Danish</option>
@@ -82,31 +82,31 @@
           <option value="vi"     >Vietnamese</option>
         </select>
       </label><br>
-      <label>Clean<input type="radio" name="explicit" value="clean" checked/></label>
-      <label>Explicit<input type="radio" name="explicit" value="explicit"/></label><br>
+      <label>Clean<input type="radio" name="series-explicit" value="clean" checked/></label>
+      <label>Explicit<input type="radio" name="series-explicit" value="explicit"/></label><br>
       <br><input type="submit" />
     </form>
   </div>
 
   <div>
     <h2>Add Episode</h2>
-    <form>
-      <label>Episode #<input type="text" value="<?= $lastepisode['number']+1; ?>"/></label><br>
-      <label>Episode title: <input type="text" value="<?= $series['title']; ?>"/></label><br>
-      <label>Artist: <input type="text" value="<?= $series['artist']; ?>"/></label><br>
-      <label>Short description: <input type="text" value="<?= $series['shortdesc']; ?>"/></label><br>
+    <form method="post" action="write.php">
+      <label>Episode #<input name="ep-number" type="text" value="<?= $lastepisode['number']+1; ?>"/></label><br>
+      <label>Episode title: <input name="ep-title" type="text" value="<?= $series['title']." Episode ".($lastepisode['number']+1); ?>"/></label><br>
+      <label>Artist: <input name="ep-artist" type="text" value="<?= $series['artist']; ?>"/></label><br>
+      <label>Short description: <input name="ep-shortdesc" type="text" value="<?= $series['shortdesc']; ?>"/></label><br>
         <label>Long description<br>
-          <textarea placeholder="<?= $series['shortdesc']?>"><?= $series['longdesc']?></textarea>
+          <textarea name="ep-longdesc" placeholder="<?= $series['shortdesc']?>"><?= $series['longdesc']?></textarea>
         </label><br>
       <label>Cover image<br>
-        <input type="file" accept="image/*"/><br>
+        <input name="ep-imageurl" type="file" accept="image/*"/><br>
         <img width='250px' height='250px' src='<?= $series['imageurl'] ?>' />
       </label><br>
       <label>MP3 File:<br>
-        <input type="file" accept="audio/mpeg"/>
+        <input name="ep-mediaurl" type="file" accept="audio/mpeg"/>
       </label><br>
-      <label>Timestamp: <input type="text" value="<?=  date('l F jS, Y'); //['timestamp'] ?>"/></label><br>
-      <label>Length: (HH:MM:SS)<input type="text" value="<?php //['duration'] ?>"/></label><br>
+      <label>Timestamp: <input name="ep-timestamp" type="text" value="<?=  date('l F jS, Y'); //['timestamp'] ?>"/></label><br>
+      <label>Length: (HH:MM:SS)<input name="ep-duration" type="text" value="<?php //['duration'] ?>"/></label><br>
       <input type="submit" />
     </form>
   </div>

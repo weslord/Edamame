@@ -25,5 +25,5 @@ CREATE TABLE `episodes` (
   `mediasize` INTEGER,
   `mediatype` TEXT,
   `timestamp` INTEGER,
-  `duration`  INTEGER
+  `duration`  INTEGER # should this be text?
 );
