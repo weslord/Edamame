@@ -1,8 +1,8 @@
 <?php ?>
 <html>
 <head>
-  <title>Confirmation Bias</title>
-  <link rel="stylesheet" type="text/css" href="podpub-default.css">
+  <title>Sample Page</title>
+  <link rel="stylesheet" type="text/css" href="edamame-default.css">
 </head>
 <body>
   <?php

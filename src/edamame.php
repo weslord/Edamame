@@ -1,5 +1,5 @@
 <?php
-class PodPub{
+class Edamame{
 
   public static function ListEpisodes{
     require_once 'db.php';
@@ -10,7 +10,7 @@ class PodPub{
         while ($episode = $episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT)) {
       ?>
 
-      <?php //add even+odd episode classes? ?>
+      <?php //add even+odd episode classes? - no, handleable by CSS ?>
       <div class="podpub-episode" id="podpub-ep-<?= $episode['number'] ?>">
         <h2 class="podpub-title"><?= $episode['number'] ?> - <?= $episode['title'] ?></h2>
         <span class="podpub-timestamp"><?= date('l F jS, Y', $episode['timestamp']); ?></span>

@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Admin Page</title>
-  <link rel="stylesheet" type="text/css" href="podpub-default.css">
+  <link rel="stylesheet" type="text/css" href="edamame-default.css">
 </head>
 <body>
   <a href='index.php'>Listings</a>
