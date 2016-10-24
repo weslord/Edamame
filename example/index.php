@@ -5,9 +5,15 @@
   <link rel="stylesheet" type="text/css" href="edamame-default.css">
 </head>
 <body>
+  <a href='admin.php'>Admin</a>
+
   <?php
-    include 'series-info.php';
-    include 'episode-listing.php';
+    include '../src/edamame.php';
+  
+    $dbpath = getcwd()."/podcast.db3";
+    $sample = new Edamame($dbpath);
+    $sample->seriesInfo();
+    $sample->listEpisodes();
   ?>
 
 </body>

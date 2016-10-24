@@ -1,6 +1,3 @@
-<?php
-  require_once 'db.php';
-?>
 <div>
   <h2>Series Info</h2>
   <form enctype="multipart/form-data" method="post" action="write-series.php">

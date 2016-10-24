@@ -1,7 +1,3 @@
-<?php
-  require_once 'db.php';
-  $lastepisode = $episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT);
-?>
 <div>
   <h2>Add Episode</h2>
   <form enctype="multipart/form-data" method="post" action="write-episode.php">
