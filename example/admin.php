@@ -9,14 +9,13 @@
   <h1>Admin Dashboard</h1>
 
   <?php
-  
     include '../src/edamame.php';
   
     $dbpath = getcwd()."/podcast.db3";
     $sample = new Edamame($dbpath);
+  
     $sample->adminSeries();
     $sample->adminEpisode();
-  
   ?>
 
 </body>

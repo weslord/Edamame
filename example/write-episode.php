@@ -5,6 +5,7 @@
   <link rel="stylesheet" type="text/css" href="edamame-default.css">
 </head>
 <body>
+  <a href='index.php'>Listings</a> /
   <a href='admin.php'>Admin</a>
 
   <?php
@@ -13,8 +14,7 @@
     $dbpath = getcwd()."/podcast.db3";
     $sample = new Edamame($dbpath);
   
-    $sample->seriesInfo();
-    $sample->listEpisodes();
+    $sample->writeEpisode();
   ?>
 
 </body>
