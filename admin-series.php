@@ -3,7 +3,7 @@
 ?>
 <div>
   <h2>Series Info</h2>
-  <form method="post" action="write-series.php">
+  <form enctype="multipart/form-data" method="post" action="write-series.php">
     <label>Title<input name="series-title" type="text" value="<?= $series['title'] ?>"/></label><br>
     <label>Artist<input name="series-artist" type="text" value="<?= $series['artist']?>"/></label><br>
     <label>Copyright<input name="series-copyright" type="text" value="<?= $series['copyright']?>"/></label><br>

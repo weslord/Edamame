@@ -4,7 +4,7 @@
 ?>
 <div>
   <h2>Add Episode</h2>
-  <form method="post" action="write-episode.php">
+  <form enctype="multipart/form-data" method="post" action="write-episode.php">
     <label>Episode #<input name="ep-number" type="text" value="<?= $lastepisode['number']+1; ?>"/></label><br>
     <label>Episode title: <input name="ep-title" type="text" value="<?= $series['title']." Episode ".($lastepisode['number']+1); ?>"/></label><br>
     <label>Artist: <input name="ep-artist" type="text" value="<?= $series['artist']; ?>"/></label><br>

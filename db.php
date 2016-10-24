@@ -1,8 +1,5 @@
 <?php
-  //  $dbpath = "/FULL/PATH/TO/podcast.db3" // Absolute path to db3 file
-  if (!$dbpath) {
-    $dbpath = getcwd()."/podcast.db3";
-  }
+  require_once 'config.php';
 
   $dsn = "sqlite:".$dbpath;
   $db = new PDO($dsn); // add some error handling/checking...

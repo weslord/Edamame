@@ -1,7 +1,5 @@
 <?php
-  require "db.php";
-
-  var_dump($_POST);
+  require 'db.php';
 
   $seriesupdate = $db->prepare("
     UPDATE `seriesinfo`
@@ -31,4 +29,18 @@
     ':explicit' => $_POST['series-explicit'],
     ':language' => $_POST['series-language'],
     ));
+
+    if (!$imagedir) {
+      $imagedir = getcwd();
+    }
+
+    // check $_FILE for errors, type, etc
+    if ($_FILES['series-imageurl']['error'] == UPLOAD_ERR_OK) {
+      // save to series cover location
+      $imagepath = $imagedir . "/cover.png"; // check for type, set extension
+      move_uploaded_file($_FILES['series-imageurl']['tmp_name'],$imagepath);
+
+      // delete/archive existing, if different
+    }
+
 ?>

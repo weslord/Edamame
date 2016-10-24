@@ -6,8 +6,8 @@
 </head>
 <body>
   <?php
-    require 'series-info.php';
-    require 'episode-listing.php';
+    include 'series-info.php';
+    include 'episode-listing.php';
   ?>
 
 </body>

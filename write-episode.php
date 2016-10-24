@@ -1,7 +1,5 @@
 <?php
-  require "db.php";
-
-  var_dump($_POST);
+  require 'db.php';
 
   $seriesupdate = $db->prepare("
     INSERT INTO `episodes`  ( number, title, artist, shortdesc, longdesc, mediatype, timestamp, duration)
@@ -17,4 +15,5 @@
     ':timestamp' => strtotime($_POST['ep-timestamp']),
     ':duration' => $_POST['ep-duration'],
     ));
+
 ?>
