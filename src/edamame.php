@@ -6,12 +6,11 @@
 
     function __construct($dbpath) {
       $dsn = "sqlite:".$dbpath;
-      $this->db = new PDO($dsn); // add some error handling/checking...
-      $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
-      $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
+      $this->db = new PDO($dsn); // add error handling...
     }
 
     public function seriesInfo() {
+      $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
       ?>
         <div id="podpub-series-info">
           <h1><?= $this->series['title']; ?></h1>
@@ -23,9 +22,11 @@
     } // seriesInfo
 
     public function listEpisodes() {
+      $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
       ?>
         <div id="podpub-episodes">
           <?php
+            // reset pointer?
             while ($episode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT)) {
           ?>
 
@@ -43,11 +44,56 @@
 
     } // listEpisodes
 
-    public function adminSeries() {
+    public function adminSeries($formTargetPath = "") {
+      if ($_POST['form-type'] == "series") {
+        $this->writeSeries();
+      }
+
+      $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
+      $series = $this->series;
       include "series-form.inc";
     } // adminSeries
     
-    public function writeSeries() {
+    public function adminEpisode($formTargetPath = "") {
+      if ($_POST['form-type'] == "episode") {
+        $this->writeEpisode();
+      }
+
+      $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
+      $series = $this->series;
+      $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
+
+      $lastepisode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT);
+      include "episode-form.inc";
+    }
+
+    private function writeEpisode() {
+      $seriesupdate = $this->db->prepare("
+        INSERT INTO `episodes`  ( number, title, artist, shortdesc, longdesc, mediatype, timestamp, duration)
+        VALUES                  (:number,:title,:artist,:shortdesc,:longdesc,:mediatype,:timestamp,:duration);");
+
+      $seriesupdate->execute(array(
+        ':number' => $_POST['ep-number'],
+        ':title' => $_POST['ep-title'],
+        ':artist' => $_POST['ep-artist'],
+        ':shortdesc' => $_POST['ep-shortdesc'],
+        ':longdesc' => $_POST['ep-longdesc'],
+        ':mediatype' => $_POST['ep-mediatype'],
+        ':timestamp' => strtotime($_POST['ep-timestamp']),
+        ':duration' => $_POST['ep-duration'],
+        ));
+    }
+
+    public function writeData() {
+      if ($_POST['form-type'] == "series") {
+        $this->writeSeries();
+      } else if ($_POST['form-type'] == "episode") {
+        $this->writeEpisode();
+      }
+
+    }
+
+    private function writeSeries() {
       $seriesupdate = $this->db->prepare("
         UPDATE `seriesinfo`
         SET `title`=:title,
@@ -90,32 +136,11 @@
         // delete/archive existing, if different
       }
     }
-
-    public function adminEpisode() {
-      $lastepisode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT);
-      include "episode-form.inc";
-    }
-    
-    public function writeEpisode() {
-      $seriesupdate = $this->db->prepare("
-        INSERT INTO `episodes`  ( number, title, artist, shortdesc, longdesc, mediatype, timestamp, duration)
-        VALUES                  (:number,:title,:artist,:shortdesc,:longdesc,:mediatype,:timestamp,:duration);");
-
-      $seriesupdate->execute(array(
-        ':number' => $_POST['ep-number'],
-        ':title' => $_POST['ep-title'],
-        ':artist' => $_POST['ep-artist'],
-        ':shortdesc' => $_POST['ep-shortdesc'],
-        ':longdesc' => $_POST['ep-longdesc'],
-        ':mediatype' => $_POST['ep-mediatype'],
-        ':timestamp' => strtotime($_POST['ep-timestamp']),
-        ':duration' => $_POST['ep-duration'],
-        ));
-    }
     
     public function rss() {
-      $series = $this->series;
-      $episodes = $this->episodes;
+
+      $series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
+      $episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
 
       include "feed.rss";
     }

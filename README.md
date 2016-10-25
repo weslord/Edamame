@@ -1,4 +1,4 @@
-# PodPub
-Minimalistic PHP-based podcast publishing engine
+# Edamame
+Minimalistic PHP-based podcast engine library
 
-**Currently at super primitive state of development (e.g. version 0.0.01alpha), not yet useful for use by anyone yet.**
+**Currently in early stage of development, not ready for external use.**
