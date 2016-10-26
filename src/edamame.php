@@ -12,7 +12,7 @@
     public function seriesInfo() {
       $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
       ?>
-        <div id="podpub-series-info">
+        <div id="edamame-series-info">
           <h1><?= $this->series['title']; ?></h1>
           <p><?= $this->series['longdesc']; ?></p>
           <img src="<?= $this->series['imageurl']?>" width="250px" height="250px" />
@@ -24,17 +24,17 @@
     public function listEpisodes() {
       $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
       ?>
-        <div id="podpub-episodes">
+        <div id="edamame-episodes">
           <?php
             // reset pointer?
             while ($episode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT)) {
           ?>
 
-            <div class="podpub-episode" id="podpub-ep-<?= $episode['number'] ?>">
-              <h2 class="podpub-title"><?= $episode['number'] ?> - <?= $episode['title'] ?></h2>
-              <span class="podpub-timestamp"><?= date('l F jS, Y', $episode['timestamp']); ?></span>
-              <div class="podpub-longdesc"><?= str_replace(['<![CDATA[',']]>'],"",$episode['longdesc']) ?></div>
-              <a class="podpub-mediaurl" href="<?= $episode['mediaurl'] ?>">mp3</a>
+            <div class="edamame-episode" id="edamame-ep-<?= $episode['number'] ?>">
+              <h2 class="edamame-title"><?= $episode['number'] ?> - <?= $episode['title'] ?></h2>
+              <span class="edamame-timestamp"><?= date('l F jS, Y', $episode['timestamp']); ?></span>
+              <div class="edamame-longdesc"><?= str_replace(['<![CDATA[',']]>'],"",$episode['longdesc']) ?></div>
+              <a class="edamame-mediaurl" href="<?= $episode['mediaurl'] ?>">mp3</a>
             </div>
 
           <?php } ?>
