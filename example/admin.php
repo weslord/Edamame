@@ -8,6 +8,9 @@
   <link rel="stylesheet" type="text/css" href="edamame-default.css">
 </head>
 <body>
+  <?php
+    $sample->adminLogin();
+  ?>
   <a href='index.php'>Listings</a>
   <h1>Admin Dashboard</h1>
 

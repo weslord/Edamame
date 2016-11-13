@@ -3,23 +3,35 @@
     protected $db;
     protected $series;
     protected $episodes;
+    protected $verified = FALSE;
 
     function __construct($dbpath) {
-      session_start();
-      if ($_POST['login']){
-        $_SESSION['login'] = $_POST['login'];
-      }
-
+      $this->adminVerify();
       
       $dsn = "sqlite:".$dbpath;
       $this->db = new PDO($dsn); // add error handling...
-      
- //     $this->verifyAdmin();
     }
     
-    // simplest possible login/logout - button saves state in session:
-    public function loginForm() {
-      if ($_SESSION['login']=="Log In"){
+    private function adminVerify() {
+      if ($_POST['login'] == "Log In"){
+        setcookie("verified","TRUE");
+        $this->verified = TRUE;
+      } else if ($_POST['login'] == "Log Out"){
+        setcookie("verified","FALSE");
+        $this->verified = FALSE;
+      } else if ($_COOKIE['verified'] == "TRUE") {
+        $this->verified = TRUE;
+      } else {
+        $this->verified = FALSE;
+      }
+    }
+    
+    public function adminStatus() {
+      return $this->verified;
+    }
+    
+    public function adminLogin() {
+      if ($this->verified){
         $log = "Log Out";
       } else {
         $log = "Log In";
@@ -70,9 +82,8 @@
     } // listEpisodes
 
     public function adminSeries($formTargetPath = "") {
-      if ($_SESSION['login'] != "Log In") {
-        $this->loginForm();
-        echo "<div>Please log in</div>";
+      if (! $this->verified) {
+        echo "<div class=\"edamame-warning\">Please log in to edit series info</div>";
       } else {
         if ($_POST['form-type'] == "series") {
           $this->writeSeries();
@@ -85,9 +96,8 @@
     } // adminSeries
     
     public function adminEpisode($formTargetPath = "") {
-      if ($_SESSION['login'] != "Log In") {
-        $this->loginForm();
-        echo "<div>Please log in</div>";
+      if (! $this->verified) {
+        echo "<div class=\"edamame-warning\">Please log in to edit episode info</div>";
       } else {
         if ($_POST['form-type'] == "episode") {
           $this->writeEpisode();
