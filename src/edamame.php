@@ -5,15 +5,40 @@
     protected $episodes;
 
     function __construct($dbpath) {
+      session_start();
+      if ($_POST['login']){
+        $_SESSION['login'] = $_POST['login'];
+      }
+
+      
       $dsn = "sqlite:".$dbpath;
       $this->db = new PDO($dsn); // add error handling...
+      
+ //     $this->verifyAdmin();
     }
+    
+    // simplest possible login/logout - button saves state in session:
+    public function loginForm() {
+      if ($_SESSION['login']=="Log In"){
+        $log = "Log Out";
+      } else {
+        $log = "Log In";
+      }
+
+      ?>
+        <form enctype="multipart/form-data" method="post" action="">
+          <input type="hidden" name="login" value="<?=$log?>">
+          <input type="submit" value="<?=$log?>"/>
+        </form>
+      <?php
+    }
+
 
     public function seriesInfo() {
       $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
       ?>
         <div id="edamame-series-info">
-          <h1><?= $this->series['title']; ?></h1>
+          <h2><?= $this->series['title']; ?></h2>
           <p><?= $this->series['longdesc']; ?></p>
           <img src="<?= $this->series['imageurl']?>" width="250px" height="250px" />
           <a href="feed.php">RSS feed</a><?php //get from db ?>
@@ -45,29 +70,39 @@
     } // listEpisodes
 
     public function adminSeries($formTargetPath = "") {
-      if ($_POST['form-type'] == "series") {
-        $this->writeSeries();
-      }
+      if ($_SESSION['login'] != "Log In") {
+        $this->loginForm();
+        echo "<div>Please log in</div>";
+      } else {
+        if ($_POST['form-type'] == "series") {
+          $this->writeSeries();
+        }
 
-      $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
-      $series = $this->series;
-      include "series-form.inc";
+        $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
+        $series = $this->series;
+        include "series-form.inc";
+      }
     } // adminSeries
     
     public function adminEpisode($formTargetPath = "") {
-      if ($_POST['form-type'] == "episode") {
-        $this->writeEpisode();
+      if ($_SESSION['login'] != "Log In") {
+        $this->loginForm();
+        echo "<div>Please log in</div>";
+      } else {
+        if ($_POST['form-type'] == "episode") {
+          $this->writeEpisode();
+        }
+
+        $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
+        $series = $this->series;
+        $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
+
+        $lastepisode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT);
+        include "episode-form.inc";
       }
-
-      $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
-      $series = $this->series;
-      $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
-
-      $lastepisode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT);
-      include "episode-form.inc";
     }
 
-    private function writeEpisode() {
+    protected function writeEpisode() {
       $seriesupdate = $this->db->prepare("
         INSERT INTO `episodes`  ( number, title, artist, shortdesc, longdesc, mediatype, timestamp, duration)
         VALUES                  (:number,:title,:artist,:shortdesc,:longdesc,:mediatype,:timestamp,:duration);");
@@ -93,7 +128,7 @@
 
     }
 
-    private function writeSeries() {
+    protected function writeSeries() {
       $seriesupdate = $this->db->prepare("
         UPDATE `seriesinfo`
         SET `title`=:title,

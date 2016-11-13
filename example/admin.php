@@ -1,4 +1,7 @@
-<?php ?>
+<?php
+  include '../src/edamame.php';
+  $sample = new Edamame(__DIR__."/podcast.db3");
+?>
 <html>
 <head>
   <title>Admin Page</title>
@@ -9,11 +12,6 @@
   <h1>Admin Dashboard</h1>
 
   <?php
-    include '../src/edamame.php';
-  
-    $dbpath = getcwd()."/podcast.db3";
-    $sample = new Edamame($dbpath);
-  
     $sample->adminSeries();
     $sample->adminEpisode();
   ?>
