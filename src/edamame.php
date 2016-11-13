@@ -59,7 +59,13 @@
     } // seriesInfo
 
     public function listEpisodes() {
-      $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
+      if ($_GET['episode']) {
+        //echo 'SELECT * FROM episodes WHERE number = "' . $_GET['epno'] . '" ORDER BY number DESC;';
+
+        $this->episodes = $this->db->query('SELECT * FROM episodes WHERE number = "' . $_GET['episode'] . '" ORDER BY number DESC;');
+      } else {
+        $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
+      }
       ?>
         <div id="edamame-episodes">
           <?php
@@ -68,7 +74,7 @@
           ?>
 
             <div class="edamame-episode" id="edamame-ep-<?= $episode['number'] ?>">
-              <h2 class="edamame-title"><?= $episode['number'] ?> - <?= $episode['title'] ?></h2>
+              <h3 class="edamame-title"><a href="?episode=<?= $episode['number'] ?>"><?= $episode['number'] ?> - <?= $episode['title'] ?></a></h3>
               <span class="edamame-timestamp"><?= date('l F jS, Y', $episode['timestamp']); ?></span>
               <div class="edamame-longdesc"><?= str_replace(['<![CDATA[',']]>'],"",$episode['longdesc']) ?></div>
               <a class="edamame-mediaurl" href="<?= $episode['mediaurl'] ?>">mp3</a>
