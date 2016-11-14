@@ -12,7 +12,7 @@
       $this->db = new PDO($dsn); // add error handling...
     }
     
-    private function adminVerify() {
+    protected function adminVerify() {
       if ($_POST['login'] == "Log In"){
         setcookie("verified","TRUE");
         $this->verified = TRUE;
@@ -45,7 +45,6 @@
       <?php
     }
 
-
     public function seriesInfo() {
       $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
       ?>
@@ -58,10 +57,17 @@
       <?php
     } // seriesInfo
 
-    public function listEpisodes() {
-      if ($_GET['episode']) {
-        //echo 'SELECT * FROM episodes WHERE number = "' . $_GET['epno'] . '" ORDER BY number DESC;';
+    protected function deleteEpisode($episodeNumber) {
+      if ($this->verified) {
+        $this->db->query('DELETE FROM episodes WHERE number = "' . $episodeNumber . '";');
+      }
+    }
 
+    public function listEpisodes() {
+      if ($_POST['delete-episode']) {
+        $this->deleteEpisode($_POST['delete-episode']);
+      }
+      if ($_GET['episode']) {
         $this->episodes = $this->db->query('SELECT * FROM episodes WHERE number = "' . $_GET['episode'] . '" ORDER BY number DESC;');
       } else {
         $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
@@ -78,6 +84,16 @@
               <span class="edamame-timestamp"><?= date('l F jS, Y', $episode['timestamp']); ?></span>
               <div class="edamame-longdesc"><?= str_replace(['<![CDATA[',']]>'],"",$episode['longdesc']) ?></div>
               <a class="edamame-mediaurl" href="<?= $episode['mediaurl'] ?>">mp3</a>
+              <?php
+                if ($this->verified) {
+                  ?>
+                  <form enctype="multipart/form-data" method="post" action="">
+                    <input type="hidden" name="delete-episode" value="<?= $episode['number'] ?>">
+                    <input type="submit" value="Delete Episode"/>
+                  </form>
+                  <?php
+                }
+              ?>
             </div>
 
           <?php } ?>
@@ -141,7 +157,6 @@
       } else if ($_POST['form-type'] == "episode") {
         $this->writeEpisode();
       }
-
     }
 
     protected function writeSeries() {
@@ -189,7 +204,6 @@
     }
     
     public function rss() {
-
       $series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
       $episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
 
