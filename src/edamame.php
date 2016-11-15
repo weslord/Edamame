@@ -5,17 +5,24 @@
     protected $episodes;
     protected $verified = FALSE;
 
-    function __construct($dbpath) {
-      $this->adminVerify();
-      
+    function __construct($dbpath) {      
       $dsn = "sqlite:".$dbpath;
       $this->db = new PDO($dsn); // add error handling...
+      
+      $this->adminVerify();
     }
     
     protected function adminVerify() {
       if ($_POST['login'] == "Log In"){
-        setcookie("verified","TRUE");
-        $this->verified = TRUE;
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+        $query = $this->db->query('SELECT password FROM admin WHERE email = "' . $email . '";');
+        $dbpass = $query->fetch(PDO::FETCH_ASSOC)['password'];
+        
+        if ($password == $dbpass){
+          setcookie("verified","TRUE");
+          $this->verified = TRUE;
+        }
       } else if ($_POST['login'] == "Log Out"){
         setcookie("verified","FALSE");
         $this->verified = FALSE;
@@ -33,16 +40,23 @@
     public function adminLogin() {
       if ($this->verified){
         $log = "Log Out";
+        ?>
+          <form enctype="multipart/form-data" method="post" action="">
+            <input type="hidden" name="login" value="<?=$log?>">
+            <input type="submit" value="<?=$log?>"/>
+          </form>
+        <?php
       } else {
         $log = "Log In";
+        ?>
+          <form enctype="multipart/form-data" method="post" action="">
+            <input type="hidden" name="login" value="<?=$log?>">
+            <input type="email" name="email">
+            <input type="password" name="password">
+            <input type="submit" value="<?=$log?>"/>
+          </form>
+        <?php
       }
-
-      ?>
-        <form enctype="multipart/form-data" method="post" action="">
-          <input type="hidden" name="login" value="<?=$log?>">
-          <input type="submit" value="<?=$log?>"/>
-        </form>
-      <?php
     }
 
     public function seriesInfo() {
