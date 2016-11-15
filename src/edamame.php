@@ -19,15 +19,37 @@
         $query = $this->db->query('SELECT password FROM admin WHERE email = "' . $email . '";');
         $dbpass = $query->fetch(PDO::FETCH_ASSOC)['password'];
         
-        if ($password == $dbpass){
-          setcookie("verified","TRUE");
+        if (password_verify($password,$dbpass)){
+          $token = bin2hex(random_bytes(32));
+          $hashedToken = hash("sha256",$token);
+          if ($_POST['remember']) {
+            $cookieExpiry = time()+60*60*24*7;
+          } else {
+            $cookieExpiry = 0;
+          }
+          
+          setcookie("edamame-admin-token",$token,$cookieExpiry);
+          $this->db->query('UPDATE admin SET token ="'.$hashedToken.'" WHERE email = "'.$email.'";')->fetch(PDO::FETCH_ASSOC);
           $this->verified = TRUE;
+        } else {
+          $this->verified = FALSE;
         }
-      } else if ($_POST['login'] == "Log Out"){
-        setcookie("verified","FALSE");
-        $this->verified = FALSE;
-      } else if ($_COOKIE['verified'] == "TRUE") {
-        $this->verified = TRUE;
+        
+      } else if ($_COOKIE['edamame-admin-token']) {
+        $query = $this->db->query('SELECT token FROM admin;');
+        $dbToken = $query->fetch(PDO::FETCH_ASSOC)['token'];
+        $userToken = hash("sha256",$_COOKIE['edamame-admin-token']);
+        
+        if (hash_equals($dbToken,$userToken)) {
+          if ($_POST['login'] == "Log Out"){
+            $this->db->query('UPDATE admin SET token = 0')->fetch(PDO::FETCH_ASSOC);
+            setcookie("edamame-admin-token",NULL,time()-3600);
+            $this->verified = FALSE;
+          } else {
+            $this->verified = TRUE;
+          }
+        }
+        
       } else {
         $this->verified = FALSE;
       }
@@ -39,21 +61,21 @@
     
     public function adminLogin() {
       if ($this->verified){
-        $log = "Log Out";
         ?>
           <form enctype="multipart/form-data" method="post" action="">
-            <input type="hidden" name="login" value="<?=$log?>">
-            <input type="submit" value="<?=$log?>"/>
+            <input type="hidden" name="login" value="Log Out">
+            <input type="submit" value="Log Out"/>
           </form>
         <?php
       } else {
-        $log = "Log In";
         ?>
           <form enctype="multipart/form-data" method="post" action="">
-            <input type="hidden" name="login" value="<?=$log?>">
+            <input type="hidden" name="login" value="Log In">
             <input type="email" name="email">
             <input type="password" name="password">
-            <input type="submit" value="<?=$log?>"/>
+            <label><input type="checkbox" name="remember">Remember Me</label>
+            <br>
+            <input type="submit" value="Log In"/>
           </form>
         <?php
       }
