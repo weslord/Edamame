@@ -5,51 +5,84 @@
     protected $episodes;
     protected $verified = FALSE;
 
-    function __construct($dbpath) {      
-      $dsn = "sqlite:".$dbpath;
-      $this->db = new PDO($dsn); // add error handling...
+    function __construct($dbpath) {
+      if (file_exists($dbpath)) {
+        $dsn = "sqlite:".$dbpath;
+        $this->db = new PDO($dsn); // add error handling...
+
+        $this->adminVerify();
+
+      } else {
+        // this warning is clearly misplaced, need better error system
+        echo "<div class=\"edamame-warning\">Database not found.</div>";
+      }
       
-      $this->adminVerify();
+    }
+
+    protected function setTokens($email,$persistent){
+      $token = bin2hex(random_bytes(32));
+      $hashedToken = hash("sha256",$token);
+
+      if ($persistent) {
+        $cookieExpiry = time()+60*60*24*7;
+        $tokenExpiry = time()+60*60*24*7;
+        $persistent = TRUE;
+      } else {
+        $cookieExpiry = 0;
+        $tokenExpiry = time()+60*30;
+        $persistent = FALSE;
+      }
+
+      setcookie("edamame-admin-token",$token,$cookieExpiry);
+      setcookie("edamame-admin-email",$email,$cookieExpiry);
+
+      $query = $this->db->prepare('UPDATE admin SET token=:token, timestamp=:expiry, persistent=:persistent WHERE email = :email;');
+      $query->execute(array(':token' => $hashedToken, ':expiry' => $tokenExpiry, ':persistent' => $persistent, ':email' => $email));
     }
     
     protected function adminVerify() {
       if ($_POST['login'] == "Log In"){
         $email = $_POST['email'];
-        $password = $_POST['password'];
-        $query = $this->db->query('SELECT password FROM admin WHERE email = "' . $email . '";');
-        $dbpass = $query->fetch(PDO::FETCH_ASSOC)['password'];
+        $formPass = $_POST['password'];
         
-        if (password_verify($password,$dbpass)){
-          $token = bin2hex(random_bytes(32));
-          $hashedToken = hash("sha256",$token);
-          if ($_POST['remember']) {
-            $cookieExpiry = time()+60*60*24*7;
-          } else {
-            $cookieExpiry = 0;
-          }
-          
-          setcookie("edamame-admin-token",$token,$cookieExpiry);
-          $this->db->query('UPDATE admin SET token ="'.$hashedToken.'" WHERE email = "'.$email.'";')->fetch(PDO::FETCH_ASSOC);
+        $query = $this->db->prepare('SELECT password FROM admin WHERE email = :email;');
+        $query->execute(array(':email' => $email));
+        $dbPass = $query->fetch(PDO::FETCH_ASSOC)['password'];
+
+        if (password_verify($formPass,$dbPass)){
+          $this->setTokens($email,$_POST['remember']);
           $this->verified = TRUE;
         } else {
           $this->verified = FALSE;
         }
         
       } else if ($_COOKIE['edamame-admin-token']) {
-        $query = $this->db->query('SELECT token FROM admin;');
-        $dbToken = $query->fetch(PDO::FETCH_ASSOC)['token'];
         $userToken = hash("sha256",$_COOKIE['edamame-admin-token']);
-        
-        if (hash_equals($dbToken,$userToken)) {
+        $email = $_COOKIE['edamame-admin-email'];
+
+        $query = $this->db->prepare('SELECT token, persistent, timestamp FROM admin WHERE email=:email;');
+        $query->execute(array(':email' => $email));
+        $results = $query->fetch(PDO::FETCH_ASSOC);
+        $dbToken = $results['token'];
+        $persistent = $results['persistent'];
+        $expiry = $results['timestamp'];
+
+        if (dbToken && $expiry > time() && hash_equals($dbToken,$userToken)) {
           if ($_POST['login'] == "Log Out"){
-            $this->db->query('UPDATE admin SET token = 0')->fetch(PDO::FETCH_ASSOC);
+            $query = $this->db->prepare('UPDATE admin SET token = null, timestamp = null, persistent = null WHERE email=:email');
+            $query->execute(array(':email'=>$email));
+
             setcookie("edamame-admin-token",NULL,time()-3600);
+            setcookie("edamame-admin-email",NULL,time()-3600);
+
             $this->verified = FALSE;
           } else {
+            $this->setTokens($email,$persistent);
             $this->verified = TRUE;
           }
+        } else {
+         $this->verified = FALSE;
         }
-        
       } else {
         $this->verified = FALSE;
       }
@@ -95,7 +128,8 @@
 
     protected function deleteEpisode($episodeNumber) {
       if ($this->verified) {
-        $this->db->query('DELETE FROM episodes WHERE number = "' . $episodeNumber . '";');
+        $query = $this->db->prepare('DELETE FROM episodes WHERE number=:episode;');
+        $query->execute(array(':episode' => $episodeNumber));
       }
     }
 
@@ -104,7 +138,8 @@
         $this->deleteEpisode($_POST['delete-episode']);
       }
       if ($_GET['episode']) {
-        $this->episodes = $this->db->query('SELECT * FROM episodes WHERE number = "' . $_GET['episode'] . '" ORDER BY number DESC;');
+        $this->episodes = $this->db->query('SELECT * FROM episodes WHERE number = :episode ORDER BY number DESC;');
+        $this->episodes->execute(array(':episode' => $_GET['episode']));
       } else {
         $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
       }
@@ -172,8 +207,24 @@
 
     protected function writeEpisode() {
       $seriesupdate = $this->db->prepare("
-        INSERT INTO `episodes`  ( number, title, artist, shortdesc, longdesc, mediatype, timestamp, duration)
-        VALUES                  (:number,:title,:artist,:shortdesc,:longdesc,:mediatype,:timestamp,:duration);");
+        INSERT INTO `episodes` (
+          number,
+          title,
+          artist,
+          shortdesc,
+          longdesc,
+          mediatype,
+          timestamp,
+          duration)
+        VALUES (
+          :number,
+          :title,
+          :artist,
+          :shortdesc,
+          :longdesc,
+          :mediatype,
+          :timestamp,
+          :duration);");
 
       $seriesupdate->execute(array(
         ':number' => $_POST['ep-number'],

@@ -19,6 +19,13 @@ h2{
   padding-left:1em;
 }
 
+.edamame-warning{
+  padding:0.25em;
+  border:2px solid #daa;
+  background-color:#fee;
+  margin:0.25em;
+}
+
 input[type="text"],
 input[type="email"],
 select{
