@@ -14,11 +14,11 @@
       <textarea name="ep-longdesc" placeholder="<?= $series['shortdesc']?>"><?= $series['longdesc']?></textarea>
     </label><br>
     <label>Cover image<br>
-      <input name="ep-imageurl" type="file" accept="image/*"/><br>
-      <img width='250px' height='250px' src='<?= $series['imageurl'] ?>' />
+      <input name="ep-imagefile" type="file" accept="image/*"/><br>
+      <img width='250px' height='250px' src='<?= $series['mediafolder'] . $series['imagefile'] ?>' />
     </label><br>
     <label>MP3 File:<br>
-      <input name="ep-mediaurl" type="file" accept="audio/mpeg"/>
+      <input name="ep-mediafile" type="file" accept="audio/mpeg"/>
     </label><br>
     <label>Timestamp: (Weekday Month Day, Year)
       <input name="ep-timestamp" type="text" value="<?= date('l F jS, Y'); //['timestamp'] ?>"/></label><br>

@@ -1,6 +1,6 @@
 <div>
   <h2>Series Info</h2>
-  <form enctype="multipart/form-data" method="post" action="<?= $formTargetPath ?>">
+  <form enctype="multipart/form-data" method="post" action="">
     <input type="hidden" name="form-type" value="series">
     <label>Title
       <input name="series-title" type="text" value="<?= $series['title'] ?>"/>
@@ -17,8 +17,8 @@
       <textarea name="series-longdesc" placeholder="<?= $series['shortdesc']?>"><?= $series['longdesc']?></textarea>
     </label><br>
     <label>Cover image<br>
-      <input name="series-imageurl" type="file" accept="image/*"/><br>
-      <img src="<?= $series['imageurl']?>" width="250px" height="250px"/>
+      <input name="series-imagefile" type="file" accept="image/*"/><br>
+      <img src="<?= $series['mediafolder'] . $series['imagefile'] ?>" width="250px" height="250px"/>
     </label><br>
     <label>Category
       <select name="series-category"><?php // loop thru, populating with options, add selected to db match, populate appropriate subcategory ?>
@@ -83,6 +83,9 @@
     </label><br>
     <label>Clean<input type="radio" name="series-explicit" value="clean" checked/></label>
     <label>Explicit<input type="radio" name="series-explicit" value="explicit"/></label><br>
+    <label>Media Folder
+      <?= $server ?><input name="series-mediafolder" type="text" value="<?= $mediafolder ?>"/>
+    </label><br>
     <br><input type="submit" />
   </form>
 </div>

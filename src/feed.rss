@@ -12,7 +12,7 @@
     <itunes:subtitle><?= $series['shortdesc'] ?></itunes:subtitle>
     <itunes:summary><?= $series['longdesc'] ?></itunes:summary>
     <description><?= $series['longdesc'] ?></description>
-    <itunes:image href="<?= $series['imageurl'] ?>" />
+    <itunes:image href="http://<?= $_SERVER['HTTP_HOST'] . $series['mediafolder'] . $series['imagefile'] ?>" />
     <itunes:category text="<?= $series['category'] ?>"> <!-- need some processing here for subcategory -->
     </itunes:category>
     <itunes:explicit><?= $series['explicit'] ?></itunes:explicit>
@@ -27,8 +27,8 @@
       <itunes:author><?= $episode['artist'] ?></itunes:author>
       <itunes:subtitle><?= $episode['shortdesc'] ?></itunes:subtitle>
       <itunes:summary><?= $episode['longdesc'] ?></itunes:summary>
-      <itunes:image href="<?= $episode['imageurl'] ?>" />
-      <enclosure url="<?= $episode['mediaurl'] ?>" length="<?= $episode['mediasize'] ?>" type="audio/mpeg" />
+      <itunes:image href="http://<?= $_SERVER['HTTP_HOST'] .  $series['mediafolder'] . $episode['imagefile'] ?>" />
+      <enclosure url="http://<?=  $_SERVER['HTTP_HOST'] . $series['mediafolder'] . $episode['mediafile'] ?>" length="<?= $episode['mediasize'] ?>" type="audio/mpeg" />
       <guid><?= $episode['mediaurl'] ?></guid>
       <pubDate><?= date(DATE_RSS, $episode['timestamp']); ?></pubDate>
       <itunes:duration><?= $episode['duration'] ?></itunes:duration>
