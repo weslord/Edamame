@@ -29,7 +29,7 @@
       <itunes:summary><?= $episode['longdesc'] ?></itunes:summary>
       <itunes:image href="http://<?= $_SERVER['HTTP_HOST'] .  $series['mediafolder'] . $episode['imagefile'] ?>" />
       <enclosure url="http://<?=  $_SERVER['HTTP_HOST'] . $series['mediafolder'] . $episode['mediafile'] ?>" length="<?= $episode['mediasize'] ?>" type="audio/mpeg" />
-      <guid><?= $episode['mediaurl'] ?></guid>
+      <guid isPermaLink="false"><?= $episode['guid'] ?></guid>
       <pubDate><?= date(DATE_RSS, $episode['timestamp']); ?></pubDate>
       <itunes:duration><?= $episode['duration'] ?></itunes:duration>
     </item>
