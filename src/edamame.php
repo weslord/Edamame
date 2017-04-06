@@ -154,6 +154,7 @@
               <h3 class="edamame-title"><a href="?episode=<?= $episode['number'] ?>"><?= $episode['number'] ?> - <?= $episode['title'] ?></a></h3>
               <span class="edamame-timestamp"><?= date('l F jS, Y', $episode['timestamp']); ?></span>
               <div class="edamame-longdesc"><?= str_replace(['<![CDATA[',']]>'],"",$episode['longdesc']) ?></div>
+              <audio class="edamame-preview" src="<?= $this->series['mediafolder'] . $episode['mediafile'] ?>" controls></audio>
               <a class="edamame-mediaurl" href="<?= $this->series['mediafolder'] . $episode['mediafile'] ?>">mp3</a>
               <?php
                 if ($this->verified) {
@@ -267,9 +268,9 @@
           ':epno' => $_POST['ep-number']
         ));
       }
-      echo "<pre>";
-      var_dump($_FILES);
-      echo "</pre>";
+//      echo "<pre>";
+//      var_dump($_FILES);
+//      echo "</pre>";
       
       if ($_FILES['ep-mediafile']['error'] == UPLOAD_ERR_OK) {
         echo "here";
