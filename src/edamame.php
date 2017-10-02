@@ -67,7 +67,7 @@
         $persistent = $results['persistent'];
         $expiry = $results['timestamp'];
 
-        if (dbToken && $expiry > time() && hash_equals($dbToken,$userToken)) {
+        if ($dbToken && $expiry > time() && hash_equals($dbToken,$userToken)) {
           if ($_POST['login'] == "Log Out"){
             $query = $this->db->prepare('UPDATE admin SET token = null, timestamp = null, persistent = null WHERE email=:email');
             $query->execute(array(':email'=>$email));
@@ -142,6 +142,7 @@
         $this->episodes->execute(array(':episode' => $_GET['episode']));
       } else {
         $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
+        $mediafolder = $this->db->query('SELECT mediafolder FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
       }
       ?>
         <div id="edamame-episodes">
@@ -154,8 +155,8 @@
               <h3 class="edamame-title"><a href="?episode=<?= $episode['number'] ?>"><?= $episode['number'] ?> - <?= $episode['title'] ?></a></h3>
               <span class="edamame-timestamp"><?= date('l F jS, Y', $episode['timestamp']); ?></span>
               <div class="edamame-longdesc"><?= str_replace(['<![CDATA[',']]>'],"",$episode['longdesc']) ?></div>
-              <audio class="edamame-preview" src="<?= $this->series['mediafolder'] . $episode['mediafile'] ?>" controls></audio>
-              <a class="edamame-mediaurl" href="<?= $this->series['mediafolder'] . $episode['mediafile'] ?>">mp3</a>
+              <audio class="edamame-preview" src="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>" controls></audio>
+              <a class="edamame-mediaurl" href="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>">mp3</a>
               <?php
                 if ($this->verified) {
                   ?>
