@@ -215,6 +215,9 @@
     protected function writeEpisode() {
       // CHECK INPUT
       
+      // TODO: this line is repeated... a lot. Move to constructor?
+      $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
+
       $seriesupdate = $this->db->prepare("
         INSERT INTO `episodes` (
           number,
