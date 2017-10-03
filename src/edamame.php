@@ -41,7 +41,7 @@
     }
     
     protected function adminVerify() {
-      if ($_POST['login'] == "Log In"){
+      if (isset($_POST['login']) && $_POST['login'] == "Log In"){
         $email = $_POST['email'];
         $formPass = $_POST['password'];
         
@@ -56,7 +56,7 @@
           $this->verified = FALSE;
         }
         
-      } else if ($_COOKIE['edamame-admin-token']) {
+      } else if (isset($_COOKIE['edamame-admin-token']) && $_COOKIE['edamame-admin-token']) {
         $userToken = hash("sha256",$_COOKIE['edamame-admin-token']);
         $email = $_COOKIE['edamame-admin-email'];
 
@@ -68,7 +68,7 @@
         $expiry = $results['timestamp'];
 
         if ($dbToken && $expiry > time() && hash_equals($dbToken,$userToken)) {
-          if ($_POST['login'] == "Log Out"){
+          if (isset($_POST['login']) && $_POST['login'] == "Log Out"){
             $query = $this->db->prepare('UPDATE admin SET token = null, timestamp = null, persistent = null WHERE email=:email');
             $query->execute(array(':email'=>$email));
 
@@ -134,10 +134,10 @@
     }
 
     public function listEpisodes() {
-      if ($_POST['delete-episode']) {
+      if (isset($_POST['delete-episode']) && $_POST['delete-episode']) {
         $this->deleteEpisode($_POST['delete-episode']);
       }
-      if ($_GET['episode']) {
+      if (isset($_GET['episode'])) {
         $this->episodes = $this->db->query('SELECT * FROM episodes WHERE number = :episode ORDER BY number DESC;');
         $this->episodes->execute(array(':episode' => $_GET['episode']));
       } else {
@@ -180,7 +180,7 @@
       if (! $this->verified) {
         echo "<div class=\"edamame-warning\">Please log in to edit series info</div>";
       } else {
-        if ($_POST['form-type'] == "series") {
+        if (isset($_POST['form-type']) && $_POST['form-type'] == "series") {
           $this->writeSeries();
         }
 
@@ -199,7 +199,7 @@
       if (! $this->verified) {
         echo "<div class=\"edamame-warning\">Please log in to edit episode info</div>";
       } else {
-        if ($_POST['form-type'] == "episode") {
+        if (isset($_POST['form-type']) && $_POST['form-type'] == "episode") {
           $this->writeEpisode();
         }
 
@@ -277,7 +277,6 @@
 //      echo "</pre>";
       
       if ($_FILES['ep-mediafile']['error'] == UPLOAD_ERR_OK) {
-        echo "here";
         // save to series cover location
         // todo: fix the obvious flaws in this - when does what get set and checked?
         $mediadir = $_SERVER['DOCUMENT_ROOT'] . $this->series['mediafolder'];
@@ -304,6 +303,7 @@
       
     }
 
+    // TODO: this is for testing purposes, delete at some point
     public function writeData() {
       if ($_POST['form-type'] == "series") {
         $this->writeSeries();
