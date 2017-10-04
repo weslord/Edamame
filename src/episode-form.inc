@@ -20,8 +20,9 @@
     <label>MP3 File:<br>
       <input name="ep-mediafile" type="file" accept="audio/mpeg"/>
     </label><br>
-    <label>Timestamp: (Weekday Month Day, Year)
-      <input name="ep-timestamp" type="text" value="<?= date('l F jS, Y'); //['timestamp'] ?>"/></label><br>
+    <label>Release Date:<br>
+      <input name="ep-releasedate" type="date" value="<?= date('Y-m-d'); //['timestamp'] ?>"/>
+      <input name="ep-releasetime" type="time" value="00:00"/></label><br>
     <label>Length: (HH:MM:SS)
       <input name="ep-duration" type="text" value="<?php //['duration'] ?>"/>
     </label><br>

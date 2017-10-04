@@ -138,10 +138,16 @@
         $this->deleteEpisode($_POST['delete-episode']);
       }
       if (isset($_GET['episode'])) {
-        $this->episodes = $this->db->query('SELECT * FROM episodes WHERE number = :episode ORDER BY number DESC;');
+        $this->episodes = $this->db->prepare('SELECT * FROM episodes WHERE number = :episode;');
         $this->episodes->execute(array(':episode' => $_GET['episode']));
       } else {
-        $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
+        if ($this->verified) {
+          $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY timestamp DESC;');
+        } else {
+          $this->episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp DESC;');
+          $this->episodes->execute(array(':now' => date('U')));
+        }
+
         $mediafolder = $this->db->query('SELECT mediafolder FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
       }
       ?>
@@ -216,6 +222,7 @@
       // CHECK INPUT
       
       // TODO: this line is repeated... a lot. Move to constructor?
+      //       ... or, make a private functions to getSeries or loadSeries / episodes
       $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
 
       $seriesupdate = $this->db->prepare("
@@ -246,7 +253,7 @@
         ':shortdesc'  => $_POST['ep-shortdesc'],
         ':longdesc'   => $_POST['ep-longdesc'],
         ':mediatype'  => $_POST['ep-mediatype'],
-        ':timestamp'  => strtotime($_POST['ep-timestamp']),
+        ':timestamp'  => strtotime($_POST['ep-releasedate'].' '.$_POST['ep-releasetime']),
         ':duration'   => $_POST['ep-duration'],
       ));
       
@@ -371,7 +378,8 @@
     
     public function rss() {
       $series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
-      $episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
+      // TODO: filter out future episodes
+      $episodes = $this->db->query('SELECT * FROM episodes ORDER BY timestamp DESC;');
 
       include "feed.rss";
     }
