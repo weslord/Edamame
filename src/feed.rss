@@ -24,7 +24,7 @@
     </itunes:category>
     <itunes:explicit><?= $series['explicit'] ?></itunes:explicit>
     <language><?= $series['language'] ?></language>
-    <itunes:type>serial</itunes:type>
+    <itunes:type><?= $series['seriestype'] ?></itunes:type>
 
     <?php
       while ($episode = $episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT)) {
@@ -33,8 +33,8 @@
     <item>
       <title><?= $episode['number'] ?> - <?= $episode["title"]; ?></title>
       <itunes:title><?= $episode["title"] ?></itunes:title>
-      <itunes:episodeType>full</itunes:episodeType>
-      <itunes:season>1</itunes:season>
+      <itunes:episodeType><?= $episode["episodetype"] ?></itunes:episodeType>
+      <itunes:season><?= $episode["season"] ?></itunes:season>
       <itunes:episode><?= $episode['number'] ?></itunes:episode>
       <itunes:author><?= $episode['artist'] ?></itunes:author>
       <itunes:subtitle><?= $episode['shortdesc'] ?></itunes:subtitle>

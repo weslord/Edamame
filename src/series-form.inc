@@ -21,6 +21,12 @@
       <img src="<?= $series['mediafolder'] . $series['imagefile'] ?>" width="250px" height="250px"/>
     </label><br>
     <label>Category
+      <select name="series-type">
+        <option <?php if ($series['seriestype'] == 'Episodic') { echo 'selected'; } ?>>Episodic</option>
+        <option <?php if ($series['seriestype'] == 'Serial')   { echo 'selected'; } ?>>Serial</option>
+      </select>
+    </label><br>
+    <label>Category
       <select name="series-category"><?php // loop thru, populating with options, add selected to db match, populate appropriate subcategory ?>
         <option></option>
         <option>Arts</option>

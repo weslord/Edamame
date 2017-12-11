@@ -163,7 +163,7 @@
               <h3 class="edamame-title"><a href="?episode=<?= $episode['number'] ?>"><?= $episode['number'] ?> - <?= $episode['title'] ?></a></h3>
               <span class="edamame-timestamp"><?= date('l F jS, Y', $episode['timestamp']); ?></span>
               <div class="edamame-longdesc"><?= str_replace(['<![CDATA[',']]>'],"",$episode['longdesc']) ?></div>
-              <audio class="edamame-preview" src="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>" controls></audio>
+              <audio class="edamame-preview" src="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>" preload="none" controls></audio>
               <a class="edamame-mediaurl" href="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>">mp3</a>
               <?php
                 if ($this->verified) {
@@ -229,18 +229,22 @@
 
       $seriesupdate = $this->db->prepare("
         INSERT INTO `episodes` (
+          season,
           number,
           title,
           artist,
+          episodetype,
           shortdesc,
           longdesc,
           mediatype,
           timestamp,
           duration)
         VALUES (
+          :season,
           :number,
           :title,
           :artist,
+          :episodetype,
           :shortdesc,
           :longdesc,
           :mediatype,
@@ -249,14 +253,16 @@
       // add GUID, mediafile, mediasize
 
       $seriesupdate->execute(array(
-        ':number'     => $_POST['ep-number'],
-        ':title'      => $_POST['ep-title'],
-        ':artist'     => $_POST['ep-artist'],
-        ':shortdesc'  => $_POST['ep-shortdesc'],
-        ':longdesc'   => $_POST['ep-longdesc'],
-        ':mediatype'  => $_POST['ep-mediatype'],
-        ':timestamp'  => strtotime($_POST['ep-releasedate'].' '.$_POST['ep-releasetime']),
-        ':duration'   => $_POST['ep-duration'],
+        ':season'      => $_POST['ep-season'],
+        ':number'      => $_POST['ep-number'],
+        ':title'       => $_POST['ep-title'],
+        ':artist'      => $_POST['ep-artist'],
+        ':episodetype' => $_POST['ep-type'],
+        ':shortdesc'   => $_POST['ep-shortdesc'],
+        ':longdesc'    => $_POST['ep-longdesc'],
+        ':mediatype'   => $_POST['ep-mediatype'],
+        ':timestamp'   => strtotime($_POST['ep-releasedate'].' '.$_POST['ep-releasetime']),
+        ':duration'    => $_POST['ep-duration'],
       ));
       
       
@@ -335,6 +341,7 @@
             `email`       =:email,
             `shortdesc`   =:shortdesc,
             `longdesc`    =:longdesc,
+            `seriestype`  =:seriestype,
             `category`    =:category,
             `mediafolder` =:mediafolder,
             `explicit`    =:explicit,
@@ -351,6 +358,7 @@
         ':email'       => $_POST['series-email'],
         ':shortdesc'   => $_POST['series-shortdesc'],
         ':longdesc'    => $_POST['series-longdesc'],
+        ':seriestype'  => $_POST['series-type'],
         ':category'    => $_POST['series-category'],
         ':mediafolder' => $_POST['series-mediafolder'],
         ':explicit'    => $_POST['series-explicit'],

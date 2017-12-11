@@ -8,6 +8,8 @@ CREATE TABLE admin (
 
 CREATE TABLE episodes (
   number INTEGER,
+  season INTEGER,
+  episodetype TEXT,
   title TEXT,
   artist TEXT,
   shortdesc TEXT,
@@ -32,6 +34,7 @@ CREATE TABLE seriesinfo (
   longdesc TEXT,
   imagefile TEXT,
   mediafolder TEXT,
+  seriestype TEXT,
   category TEXT,
   subcategory TEXT,
   explicit NUMERIC,

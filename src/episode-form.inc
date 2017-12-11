@@ -2,12 +2,21 @@
   <h2>Add Episode</h2>
   <form enctype="multipart/form-data" method="post" action="<?= $formTargetPath ?>">
     <input type="hidden" name="form-type" value="episode">
+    <label>Season #
+      <input name="ep-season" type="text" value="<?= $lastepisode['season']; ?>"/></label><br>
     <label>Episode #
       <input name="ep-number" type="text" value="<?= $lastepisode['number']+1; ?>"/></label><br>
     <label>Episode title:
       <input name="ep-title" type="text" value="<?= $series['title']." Episode ".($lastepisode['number']+1); ?>"/></label><br>
-    <label>Artist:
-      <input name="ep-artist" type="text" value="<?= $series['artist']; ?>"/></label><br>
+    <?php // <label>Artist: ?>
+      <input type="hidden" name="ep-artist" type="text" value="<?= $series['artist']; ?>"/></label>
+    <label>Episode type:
+      <select name="ep-type">
+        <option 'selected'>Full</option>
+        <option>Bonus</option>
+        <option>Trailer</option>
+      </select>
+    </label><br>
     <label>Short description:
       <input name="ep-shortdesc" type="text" value="<?= $series['shortdesc']; ?>"/></label><br>
     <label>Long description:<br>
