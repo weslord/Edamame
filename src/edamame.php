@@ -121,7 +121,6 @@
           <h2><?= $this->series['title']; ?></h2>
           <p><?= $this->series['longdesc']; ?></p>
           <img src="<?= $this->series['mediafolder'] . $this->series['imagefile']  ?>" width="250px" height="250px" />
-          <a href="feed.php">RSS feed</a><?php //get from db ?>
         </div>
       <?php
     } // seriesInfo
@@ -142,9 +141,9 @@
         $this->episodes->execute(array(':episode' => $_GET['episode']));
       } else {
         if ($this->verified) {
-          $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY timestamp DESC;');
+          $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY timestamp ASC;');
         } else {
-          $this->episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp DESC;');
+          $this->episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp ASC;');
           $this->episodes->execute(array(':now' => date('U')));
         }
 
@@ -152,6 +151,9 @@
       }
       ?>
         <div id="edamame-episodes">
+          <h2>
+            Episodes
+          </h2>
           <?php
             // reset pointer?
             while ($episode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT)) {
@@ -260,7 +262,7 @@
       
       if ($_FILES['ep-imagefile']['error'] == UPLOAD_ERR_OK) {
         // save to series cover location
-        // todo: fix the obvious flaws in this - when does what get set and checked?
+        // TODO: fix the obvious flaws in this - when does what get set and checked?
         $mediadir = $_SERVER['DOCUMENT_ROOT'] . $this->series['mediafolder'];
         $imagepath = $mediadir . $_FILES['ep-imagefile']['name']; // check for type, set extension
         move_uploaded_file($_FILES['ep-imagefile']['tmp_name'],$imagepath);
@@ -285,7 +287,7 @@
       
       if ($_FILES['ep-mediafile']['error'] == UPLOAD_ERR_OK) {
         // save to series cover location
-        // todo: fix the obvious flaws in this - when does what get set and checked?
+        // TODO: fix the obvious flaws in this - when does what get set and checked?
         $mediadir = $_SERVER['DOCUMENT_ROOT'] . $this->series['mediafolder'];
         $imagepath = $mediadir . $_FILES['ep-mediafile']['name']; // check for type, set extension
         move_uploaded_file($_FILES['ep-mediafile']['tmp_name'],$imagepath);
@@ -358,7 +360,7 @@
       // check $_FILE for errors, type, etc
       if ($_FILES['series-imagefile']['error'] == UPLOAD_ERR_OK) {
         // save to series cover location
-        // todo: fix the obvious flaws in this - when does what get set and checked?
+        // TODO: fix the obvious flaws in this - when does what get set and checked?
         $mediadir = $_SERVER['DOCUMENT_ROOT'] . $_POST['series-mediafolder'];
         $imagepath = $mediadir . $_FILES['series-imagefile']['name']; // check for type, set extension
         move_uploaded_file($_FILES['series-imagefile']['tmp_name'],$imagepath);
@@ -379,8 +381,8 @@
     public function rss() {
       $series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
       // TODO: filter out future episodes
-      $episodes = $this->db->query('SELECT * FROM episodes ORDER BY timestamp DESC;');
-
+      $episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp DESC;');
+      $episodes->execute(array(':now' => date('U')));
       include "feed.rss";
     }
   }

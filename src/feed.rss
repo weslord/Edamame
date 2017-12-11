@@ -1,8 +1,15 @@
 <?="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" ?>
-<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
+<rss 
+  version="2.0"
+  xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+>
   <channel>
+    <generator>Edamame</generator>
     <title><?= $series['title'] ?></title>
     <link><?= $series['url'] ?></link>
+    <atom:link href="<?= 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ?>" rel="self" type="application/rss+xml" />
     <copyright><?= $series['copyright'] ?></copyright>
     <itunes:author><?= $series['artist'] ?></itunes:author>
     <itunes:owner>
@@ -10,13 +17,14 @@
       <itunes:email><?= $series['email'] ?></itunes:email>
     </itunes:owner>
     <itunes:subtitle><?= $series['shortdesc'] ?></itunes:subtitle>
-    <itunes:summary><?= $series['longdesc'] ?></itunes:summary>
-    <description><?= $series['longdesc'] ?></description>
+    <itunes:summary><![CDATA[<?= $series['longdesc'] ?> ]]> </itunes:summary>
+    <description><![CDATA[<?= $series['longdesc'] ?>]]></description>
     <itunes:image href="http://<?= $_SERVER['HTTP_HOST'] . $series['mediafolder'] . $series['imagefile'] ?>" />
     <itunes:category text="<?= $series['category'] ?>"> <!-- need some processing here for subcategory -->
     </itunes:category>
     <itunes:explicit><?= $series['explicit'] ?></itunes:explicit>
     <language><?= $series['language'] ?></language>
+    <itunes:type>serial</itunes:type>
 
     <?php
       while ($episode = $episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT)) {
@@ -24,9 +32,15 @@
 
     <item>
       <title><?= $episode['number'] ?> - <?= $episode["title"]; ?></title>
+      <itunes:title><?= $episode["title"] ?></itunes:title>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:season>1</itunes:season>
+      <itunes:episode><?= $episode['number'] ?></itunes:episode>
       <itunes:author><?= $episode['artist'] ?></itunes:author>
       <itunes:subtitle><?= $episode['shortdesc'] ?></itunes:subtitle>
-      <itunes:summary><?= $episode['longdesc'] ?></itunes:summary>
+      <description><![CDATA[<?= $episode['longdesc'] ?>]]></description>
+      <content:encoded><![CDATA[<?= $episode['longdesc'] ?>]]></content:encoded>
+      <itunes:summary><![CDATA[<?= $episode['longdesc'] ?>]]></itunes:summary>
       <itunes:image href="http://<?= $_SERVER['HTTP_HOST'] .  $series['mediafolder'] . $episode['imagefile'] ?>" />
       <enclosure url="http://<?=  $_SERVER['HTTP_HOST'] . $series['mediafolder'] . $episode['mediafile'] ?>" length="<?= $episode['mediasize'] ?>" type="audio/mpeg" />
       <guid isPermaLink="false"><?= $episode['guid'] ?></guid>
