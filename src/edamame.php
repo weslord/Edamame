@@ -146,9 +146,9 @@
           $this->episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp ASC;');
           $this->episodes->execute(array(':now' => date('U')));
         }
-
-        $mediafolder = $this->db->query('SELECT mediafolder FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
       }
+      $mediafolder = $this->db->query('SELECT mediafolder FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
+
       ?>
         <div id="edamame-episodes">
           <h2>
