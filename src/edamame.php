@@ -185,9 +185,7 @@
     } // listEpisodes
 
     public function adminSeries($formTargetPath = "") {
-      if (! $this->verified) {
-        echo "<div class=\"edamame-warning\">Please log in to edit series info</div>";
-      } else {
+      if ($this->verified) {
         if (isset($_POST['form-type']) && $_POST['form-type'] == "series") {
           $this->writeSeries();
         }
@@ -200,13 +198,13 @@
         $server = $_SERVER['HTTP_HOST'];
         
         include "series-form.inc";
+      } else {
+        echo "<div class=\"edamame-warning\">Please log in to edit series info</div>";
       }
     } // adminSeries
     
     public function adminEpisode($formTargetPath = "") {
-      if (! $this->verified) {
-        echo "<div class=\"edamame-warning\">Please log in to edit episode info</div>";
-      } else {
+      if ($this->verified) {
         if (isset($_POST['form-type']) && $_POST['form-type'] == "episode") {
           $this->writeEpisode();
         }
@@ -217,6 +215,8 @@
 
         $lastepisode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT);
         include "episode-form.inc";
+      } else {
+        echo "<div class=\"edamame-warning\">Please log in to edit episode info</div>";
       }
     }
 
@@ -319,6 +319,7 @@
     }
 
     // TODO: this is for testing purposes, delete at some point
+    // alt:  call on every page load? preview page?
     public function writeData() {
       if ($_POST['form-type'] == "series") {
         $this->writeSeries();
