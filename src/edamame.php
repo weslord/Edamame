@@ -250,7 +250,7 @@
           :mediatype,
           :timestamp,
           :duration);");
-      // add GUID, mediafile, mediasize
+      // add GUID, mediasize
 
       $seriesupdate->execute(array(
         ':season'      => $_POST['ep-season'],
@@ -260,7 +260,7 @@
         ':episodetype' => $_POST['ep-type'],
         ':shortdesc'   => $_POST['ep-shortdesc'],
         ':longdesc'    => $_POST['ep-longdesc'],
-        ':mediatype'   => $_POST['ep-mediatype'],
+        ':mediatype'   => 'audio/mpeg',
         ':timestamp'   => strtotime($_POST['ep-releasedate'].' '.$_POST['ep-releasetime']),
         ':duration'    => $_POST['ep-duration'],
       ));
