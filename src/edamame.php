@@ -125,6 +125,11 @@
       <?php
     } // seriesInfo
 
+    public function seriesTitle() {
+      $title = $this->db->query('SELECT title FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
+      return $title['title'];
+    } // seriesTitle
+
     protected function deleteEpisode($episodeNumber) {
       if ($this->verified) {
         $query = $this->db->prepare('DELETE FROM episodes WHERE number=:episode;');
