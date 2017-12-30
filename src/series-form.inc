@@ -20,7 +20,7 @@
       <input name="series-imagefile" type="file" accept="image/*"/><br>
       <img src="<?= $series['mediafolder'] . $series['imagefile'] ?>" width="250px" height="250px"/>
     </label><br>
-    <label>Category
+    <label>Type of Series
       <select name="series-type">
         <option <?php if ($series['seriestype'] == 'Episodic') { echo 'selected'; } ?>>Episodic</option>
         <option <?php if ($series['seriestype'] == 'Serial')   { echo 'selected'; } ?>>Serial</option>
@@ -87,8 +87,8 @@
         <option value="vi"     >Vietnamese</option>
       </select>
     </label><br>
-    <label>Clean<input type="radio" name="series-explicit" value="clean" checked/></label>
-    <label>Explicit<input type="radio" name="series-explicit" value="explicit"/></label><br>
+    <label>Clean<input type="radio" name="series-explicit" value="clean" <?php if ($series['explicit'] == 'clean') { echo 'checked'; } ?> /></label>
+    <label>Explicit<input type="radio" name="series-explicit" value="explicit" <?php if ($series['explicit'] == 'explicit') { echo 'checked'; } ?> /></label><br>
     <label>Media Folder
       <?= $server ?><input name="series-mediafolder" type="text" value="<?= $mediafolder ?>"/>
     </label><br>
