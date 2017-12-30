@@ -38,7 +38,7 @@
       <itunes:episode><?= $episode['number'] ?></itunes:episode>
       <itunes:author><?= $episode['artist'] ?></itunes:author>
       <itunes:subtitle><?= $episode['shortdesc'] ?></itunes:subtitle>
-      <description><![CDATA[<?= $episode['longdesc'] ?>]]></description>
+      <description><![CDATA[<?= str_replace(["\r\n","\n","\r"]," <br />", $episode['longdesc']) ?>]]></description>
       <content:encoded><![CDATA[<?= $episode['longdesc'] ?>]]></content:encoded>
       <itunes:summary><![CDATA[<?= $episode['longdesc'] ?>]]></itunes:summary>
       <itunes:image href="http://<?= $_SERVER['HTTP_HOST'] .  $series['mediafolder'] . $episode['imagefile'] ?>" />

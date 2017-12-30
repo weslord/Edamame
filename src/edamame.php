@@ -119,7 +119,7 @@
       ?>
         <div id="edamame-series-info">
           <h2><?= $this->series['title']; ?></h2>
-          <p><?= $this->series['longdesc']; ?></p>
+          <p><?= str_replace(["\r\n","\n","\r"]," <br />", $this->series['longdesc']); ?></p>
           <img src="<?= $this->series['mediafolder'] . $this->series['imagefile']  ?>" width="250px" height="250px" />
         </div>
       <?php
@@ -141,6 +141,7 @@
         $this->episodes->execute(array(':episode' => $_GET['episode']));
       } else {
         if ($this->verified) {
+          // TODO: set order based on episodic vs serial
           $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY timestamp ASC;');
         } else {
           $this->episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp ASC;');
@@ -162,7 +163,7 @@
             <div class="edamame-episode" id="edamame-ep-<?= $episode['number'] ?>">
               <h3 class="edamame-title"><a href="?episode=<?= $episode['number'] ?>"><?= $episode['number'] ?> - <?= $episode['title'] ?></a></h3>
               <span class="edamame-timestamp"><?= date('l F jS, Y', $episode['timestamp']); ?></span>
-              <div class="edamame-longdesc"><?= str_replace(['<![CDATA[',']]>'],"",$episode['longdesc']) ?></div>
+              <div class="edamame-longdesc"><?= str_replace(["\r\n","\n","\r"],"<br />", $episode['longdesc']) ?></div>
               <audio class="edamame-preview" src="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>" preload="none" controls></audio>
               <a class="edamame-mediaurl" href="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>">mp3</a>
               <?php
