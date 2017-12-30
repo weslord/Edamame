@@ -89,9 +89,11 @@
     </label><br>
     <label>Clean<input type="radio" name="series-explicit" value="clean" <?php if ($series['explicit'] == 'clean') { echo 'checked'; } ?> /></label>
     <label>Explicit<input type="radio" name="series-explicit" value="explicit" <?php if ($series['explicit'] == 'explicit') { echo 'checked'; } ?> /></label><br>
+<?php /* 
     <label>Media Folder
       <?= $server ?><input name="series-mediafolder" type="text" value="<?= $mediafolder ?>"/>
     </label><br>
+*/ ?>
     <br><input type="submit" />
   </form>
 </div>

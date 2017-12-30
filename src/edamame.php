@@ -352,10 +352,10 @@
             `longdesc`    =:longdesc,
             `seriestype`  =:seriestype,
             `category`    =:category,
-            `mediafolder` =:mediafolder,
             `explicit`    =:explicit,
             `language`    =:language
         WHERE `_rowid_`='1';");
+//          `mediafolder` =:mediafolder,
       // add subcategory
 
       $seriesupdate->execute(array(
@@ -369,10 +369,10 @@
         ':longdesc'    => $_POST['series-longdesc'],
         ':seriestype'  => $_POST['series-type'],
         ':category'    => $_POST['series-category'],
-        ':mediafolder' => $_POST['series-mediafolder'],
         ':explicit'    => $_POST['series-explicit'],
         ':language'    => $_POST['series-language'],
       ));
+//      ':mediafolder' => $_POST['series-mediafolder'],
 
       // check $_FILE for errors, type, etc
       if ($_FILES['series-imagefile']['error'] == UPLOAD_ERR_OK) {
