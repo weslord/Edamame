@@ -238,7 +238,8 @@
           longdesc,
           mediatype,
           timestamp,
-          duration)
+          duration,
+          guid)
         VALUES (
           :season,
           :number,
@@ -249,8 +250,9 @@
           :longdesc,
           :mediatype,
           :timestamp,
-          :duration);");
-      // add GUID, mediasize
+          :duration,
+          :guid);
+        ");
 
       $seriesupdate->execute(array(
         ':season'      => $_POST['ep-season'],
@@ -263,6 +265,7 @@
         ':mediatype'   => 'audio/mpeg',
         ':timestamp'   => strtotime($_POST['ep-releasedate'].' '.$_POST['ep-releasetime']),
         ':duration'    => $_POST['ep-duration'],
+        ':guid'        => $this::generateGUID(),
       ));
       
       
@@ -276,6 +279,7 @@
         // delete/archive existing, if different
         // set cover image path in database 
         
+        // TODO: add mediasize
         $epimageupdate = $this->db->prepare("
           UPDATE `episodes`
           SET `imagefile` =:imagefile
@@ -287,10 +291,7 @@
           ':epno' => $_POST['ep-number']
         ));
       }
-//      echo "<pre>";
-//      var_dump($_FILES);
-//      echo "</pre>";
-      
+
       if ($_FILES['ep-mediafile']['error'] == UPLOAD_ERR_OK) {
         // save to series cover location
         // TODO: fix the obvious flaws in this - when does what get set and checked?
@@ -312,7 +313,8 @@
           ':epno' => $_POST['ep-number']
         ));
         
-        var_dump($epmediaupdate->errorInfo());
+        // var_dump($epmediaupdate->errorInfo());
+        // TODO: add actual error handling...
       }
       
       
@@ -329,7 +331,7 @@
     }
 
     protected function writeSeries() {
-      // CHECK INPUT
+      // TODO: CHECK INPUT
       // mediafolder should not include dots, should be url, should begin and end with a /,  directory should exist...
       
       $seriesupdate = $this->db->prepare("
@@ -393,6 +395,16 @@
       $episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp DESC;');
       $episodes->execute(array(':now' => date('U')));
       include "feed.rss";
+    }
+
+    protected static function generateGUID() {
+      $bytes = random_bytes(16);
+
+      $bytes[6] = chr(ord($bytes[6]) & 0x0f | 0x40);
+      $bytes[8] = chr(ord($bytes[8]) & 0x3f | 0x80);
+
+      $guid = vsprintf("%s%s-%s-%s-%s-%s%s%s", str_split(bin2hex($bytes), 4));
+      return $guid;
     }
   }
 
