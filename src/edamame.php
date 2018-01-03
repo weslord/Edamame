@@ -378,7 +378,8 @@
       if ($_FILES['series-imagefile']['error'] == UPLOAD_ERR_OK) {
         // save to series cover location
         // TODO: fix the obvious flaws in this - when does what get set and checked?
-        $mediadir = $_SERVER['DOCUMENT_ROOT'] . $_POST['series-mediafolder'];
+        $mediafolder = $this->db->query('SELECT mediafolder FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
+        $mediadir = $_SERVER['DOCUMENT_ROOT'] . $mediafolder['mediafolder'];
         $imagepath = $mediadir . $_FILES['series-imagefile']['name']; // check for type, set extension
         move_uploaded_file($_FILES['series-imagefile']['tmp_name'],$imagepath);
 
