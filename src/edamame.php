@@ -130,10 +130,11 @@
       return $title['title'];
     } // seriesTitle
 
-    protected function deleteEpisode($episodeNumber) {
+    protected function deleteEpisode($episodeGuid) {
       if ($this->verified) {
-        $query = $this->db->prepare('DELETE FROM episodes WHERE number=:episode;');
-        $query->execute(array(':episode' => $episodeNumber));
+        $query = $this->db->prepare('DELETE FROM episodes WHERE guid=:episode;');
+        $query->execute(array(':episode' => $episodeGuid));
+        // TODO: delete mp3 (and image file, if unique)
       }
     }
 
@@ -142,7 +143,7 @@
         $this->deleteEpisode($_POST['delete-episode']);
       }
       if (isset($_GET['episode'])) {
-        $this->episodes = $this->db->prepare('SELECT * FROM episodes WHERE number = :episode;');
+        $this->episodes = $this->db->prepare('SELECT * FROM episodes WHERE guid = :episode;');
         $this->episodes->execute(array(':episode' => $_GET['episode']));
       } else {
         if ($this->verified) {
@@ -165,17 +166,22 @@
             while ($episode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT)) {
           ?>
 
-            <div class="edamame-episode" id="edamame-ep-<?= $episode['number'] ?>">
-              <h3 class="edamame-title"><a href="?episode=<?= $episode['number'] ?>"><?= $episode['number'] ?> - <?= $episode['title'] ?></a></h3>
+            <div class="edamame-episode" id="edamame-ep-<?= $episode['guid'] ?>">
+              <h3 class="edamame-title"><a href="?episode=<?= $episode['guid'] ?>"><?= $episode['number'] ?> - <?= $episode['title'] ?></a></h3>
               <span class="edamame-timestamp"><?= date('l F jS, Y', $episode['timestamp']); ?></span>
               <div class="edamame-longdesc"><?= str_replace(["\r\n","\n","\r"],"<br />", $episode['longdesc']) ?></div>
+              <?php if ($episode['imagefile']) { ?> 
+                <div class="edamame-imagefile">
+                  <img src="<?= $mediafolder['mediafolder'] . $episode['imagefile']; ?>"></img>
+                </div>
+              <?php } ?>
               <audio class="edamame-preview" src="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>" preload="none" controls></audio>
               <a class="edamame-mediaurl" href="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>">mp3</a>
               <?php
                 if ($this->verified) {
                   ?>
                   <form enctype="multipart/form-data" method="post" action="">
-                    <input type="hidden" name="delete-episode" value="<?= $episode['number'] ?>">
+                    <input type="hidden" name="delete-episode" value="<?= $episode['guid'] ?>">
                     <input type="submit" value="Delete Episode"/>
                   </form>
                   <?php
@@ -228,12 +234,30 @@
 
     protected function writeEpisode() {
       // CHECK INPUT
-      
+
       // TODO: this line is repeated... a lot. Move to constructor?
       //       ... or, make a private functions to getSeries or loadSeries / episodes
       $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
+      $mediadir = $_SERVER['DOCUMENT_ROOT'] . $this->series['mediafolder'];
 
-      $seriesupdate = $this->db->prepare("
+      $imagefilename = NULL;
+      if ($_FILES['ep-imagefile']['error'] == UPLOAD_ERR_OK) {
+        $imagefilename = $_FILES['ep-imagefile']['name']; // check for type, set extension
+        $imagefullpath = $mediadir . $imagefilename; 
+        move_uploaded_file($_FILES['ep-imagefile']['tmp_name'],$imagefullpath);
+      }
+
+      $mediafilename = NULL;
+      if ($_FILES['ep-mediafile']['error'] == UPLOAD_ERR_OK) {
+        $mediafilename = $_FILES['ep-mediafile']['name']; // check for type, set extension
+        $mediafullpath = $mediadir . $mediafilename;
+        move_uploaded_file($_FILES['ep-mediafile']['tmp_name'],$mediafullpath);
+
+        // TODO: add actual error handling...
+        // TODO: add mediasize
+      }
+
+      $episodeupdate = $this->db->prepare("
         INSERT INTO `episodes` (
           season,
           number,
@@ -242,6 +266,8 @@
           episodetype,
           shortdesc,
           longdesc,
+          imagefile,
+          mediafile,
           mediatype,
           timestamp,
           duration,
@@ -254,13 +280,15 @@
           :episodetype,
           :shortdesc,
           :longdesc,
+          :imagefile,
+          :mediafile,
           :mediatype,
           :timestamp,
           :duration,
           :guid);
         ");
 
-      $seriesupdate->execute(array(
+      $episodeupdate->execute(array(
         ':season'      => $_POST['ep-season'],
         ':number'      => $_POST['ep-number'],
         ':title'       => $_POST['ep-title'],
@@ -268,63 +296,15 @@
         ':episodetype' => $_POST['ep-type'],
         ':shortdesc'   => $_POST['ep-shortdesc'],
         ':longdesc'    => $_POST['ep-longdesc'],
+        ':imagefile'   => $imagefilename,
+        ':mediafile'   => $mediafilename,
         ':mediatype'   => 'audio/mpeg',
         ':timestamp'   => strtotime($_POST['ep-releasedate'].' '.$_POST['ep-releasetime']),
         ':duration'    => $_POST['ep-duration'],
         ':guid'        => $this::generateGUID(),
       ));
-      
-      
-      if ($_FILES['ep-imagefile']['error'] == UPLOAD_ERR_OK) {
-        // save to series cover location
-        // TODO: fix the obvious flaws in this - when does what get set and checked?
-        $mediadir = $_SERVER['DOCUMENT_ROOT'] . $this->series['mediafolder'];
-        $imagepath = $mediadir . $_FILES['ep-imagefile']['name']; // check for type, set extension
-        move_uploaded_file($_FILES['ep-imagefile']['tmp_name'],$imagepath);
 
-        // delete/archive existing, if different
-        // set cover image path in database 
-        
-        // TODO: add mediasize
-        $epimageupdate = $this->db->prepare("
-          UPDATE `episodes`
-          SET `imagefile` =:imagefile
-          WHERE `number`=:epno;
-        ");
-
-        $epimageupdate->execute(array(
-          ':imagefile' => $_FILES['ep-imagefile']['name'],
-          ':epno' => $_POST['ep-number']
-        ));
-      }
-
-      if ($_FILES['ep-mediafile']['error'] == UPLOAD_ERR_OK) {
-        // save to series cover location
-        // TODO: fix the obvious flaws in this - when does what get set and checked?
-        $mediadir = $_SERVER['DOCUMENT_ROOT'] . $this->series['mediafolder'];
-        $imagepath = $mediadir . $_FILES['ep-mediafile']['name']; // check for type, set extension
-        move_uploaded_file($_FILES['ep-mediafile']['tmp_name'],$imagepath);
-
-        // delete/archive existing, if different
-        // set cover image path in database 
-        
-        $epmediaupdate = $this->db->prepare("
-          UPDATE `episodes`
-          SET `mediafile` =:mediafile
-          WHERE `number`=:epno;
-        ");
-
-        $epmediaupdate->execute(array(
-          ':mediafile' => $_FILES['ep-mediafile']['name'],
-          ':epno' => $_POST['ep-number']
-        ));
-        
-        // var_dump($epmediaupdate->errorInfo());
-        // TODO: add actual error handling...
-      }
-      
-      
-    }
+    } // writeEpisode
 
     // TODO: this is for testing purposes, delete at some point
     // alt:  call on every page load? preview page?
