@@ -17,9 +17,13 @@
       <textarea name="series-longdesc" placeholder="<?= $series['shortdesc']?>"><?= $series['longdesc']?></textarea>
     </label><br>
     <label>Cover image<br>
-      <input name="series-imagefile" type="file" accept="image/*"/><br>
-      <img src="<?= $series['mediafolder'] . $series['imagefile'] ?>" width="250px" height="250px"/>
+      <input id="series-imagefile" name="series-imagefile" type="file" accept="image/*"/><br>
+      <img id="series-imagepreview" src="<?= $series['mediafolder'] . $series['imagefile'] ?>" width="250px" height="250px"/>
     </label><br>
+    <label>Image Filename:
+      <input id="series-imagename" name="series-imagename" type="text" readonly />
+    </label><br>
+
     <label>Type of Series
       <select name="series-type">
         <option <?php if ($series['seriestype'] == 'Episodic') { echo 'selected'; } ?>>Episodic</option>

@@ -172,7 +172,7 @@
               <div class="edamame-longdesc"><?= str_replace(["\r\n","\n","\r"],"<br />", $episode['longdesc']) ?></div>
               <?php if ($episode['imagefile']) { ?> 
                 <div class="edamame-imagefile">
-                  <img src="<?= $mediafolder['mediafolder'] . $episode['imagefile']; ?>"></img>
+                  <img src="<?= $mediafolder['mediafolder'] . $episode['imagefile']; ?>" width="200px" height="200px"></img>
                 </div>
               <?php } ?>
               <audio class="edamame-preview" src="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>" preload="none" controls></audio>
@@ -242,19 +242,25 @@
 
       $imagefilename = NULL;
       if ($_FILES['ep-imagefile']['error'] == UPLOAD_ERR_OK) {
-        $imagefilename = $_FILES['ep-imagefile']['name']; // check for type, set extension
+        if ($_POST['ep-imagename']) {
+          $imagefilename = $_POST['ep-imagename'];
+        } else {
+          $imagefilename = $_FILES['ep-imagefile']['name'];
+        }
         $imagefullpath = $mediadir . $imagefilename; 
         move_uploaded_file($_FILES['ep-imagefile']['tmp_name'],$imagefullpath);
       }
 
       $mediafilename = NULL;
       if ($_FILES['ep-mediafile']['error'] == UPLOAD_ERR_OK) {
-        $mediafilename = $_FILES['ep-mediafile']['name']; // check for type, set extension
+        if ($_POST['ep-medianame']) {
+          $mediafilename = $_POST['ep-medianame'];
+        } else {
+          $mediafilename = $_FILES['ep-mediafile']['name'];
+        }
+
         $mediafullpath = $mediadir . $mediafilename;
         move_uploaded_file($_FILES['ep-mediafile']['tmp_name'],$mediafullpath);
-
-        // TODO: add actual error handling...
-        // TODO: add mediasize
       }
 
       $episodeupdate = $this->db->prepare("
@@ -269,6 +275,7 @@
           imagefile,
           mediafile,
           mediatype,
+          mediasize,
           timestamp,
           duration,
           guid)
@@ -283,6 +290,7 @@
           :imagefile,
           :mediafile,
           :mediatype,
+          :mediasize,
           :timestamp,
           :duration,
           :guid);
@@ -299,6 +307,7 @@
         ':imagefile'   => $imagefilename,
         ':mediafile'   => $mediafilename,
         ':mediatype'   => 'audio/mpeg',
+        ':mediasize'   => $_POST['ep-mediasize'],
         ':timestamp'   => strtotime($_POST['ep-releasedate'].' '.$_POST['ep-releasetime']),
         ':duration'    => $_POST['ep-duration'],
         ':guid'        => $this::generateGUID(),
@@ -319,7 +328,26 @@
     protected function writeSeries() {
       // TODO: CHECK INPUT
       // mediafolder should not include dots, should be url, should begin and end with a /,  directory should exist...
-      
+
+      if ($_POST['series-mediafolder']) {
+        $mediafolder = $_POST['series-mediafolder'];
+      } else {
+        $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
+        $mediafolder = $this->series['mediafolder'];
+      }
+      $mediadir = $_SERVER['DOCUMENT_ROOT'] . $mediafolder;
+
+      $imagefilename = NULL;
+      if ($_FILES['series-imagefile']['error'] == UPLOAD_ERR_OK) {
+        if ($_POST['series-imagename']) {
+          $imagefilename = $_POST['series-imagename'];
+        } else {
+          $imagefilename = $_FILES['series-imagefile']['name'];
+        }
+        $imagefullpath = $mediadir . $imagefilename; 
+        move_uploaded_file($_FILES['series-imagefile']['tmp_name'],$imagefullpath);
+      }
+
       $seriesupdate = $this->db->prepare("
         UPDATE `seriesinfo`
         SET `title`       =:title,
@@ -330,12 +358,13 @@
             `email`       =:email,
             `shortdesc`   =:shortdesc,
             `longdesc`    =:longdesc,
+            `imagefile`   =:imagefile,
             `seriestype`  =:seriestype,
             `category`    =:category,
             `explicit`    =:explicit,
-            `language`    =:language
+            `language`    =:language,
+            `mediafolder` =:mediafolder
         WHERE `_rowid_`='1';");
-//          `mediafolder` =:mediafolder,
       // add subcategory
 
       $seriesupdate->execute(array(
@@ -347,33 +376,14 @@
         ':email'       => $_POST['series-email'],
         ':shortdesc'   => $_POST['series-shortdesc'],
         ':longdesc'    => $_POST['series-longdesc'],
+        ':imagefile'   => $imagefilename,
         ':seriestype'  => $_POST['series-type'],
         ':category'    => $_POST['series-category'],
         ':explicit'    => $_POST['series-explicit'],
         ':language'    => $_POST['series-language'],
+        ':mediafolder' => $mediafolder
       ));
-//      ':mediafolder' => $_POST['series-mediafolder'],
 
-      // check $_FILE for errors, type, etc
-      if ($_FILES['series-imagefile']['error'] == UPLOAD_ERR_OK) {
-        // save to series cover location
-        // TODO: fix the obvious flaws in this - when does what get set and checked?
-        $mediafolder = $this->db->query('SELECT mediafolder FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
-        $mediadir = $_SERVER['DOCUMENT_ROOT'] . $mediafolder['mediafolder'];
-        $imagepath = $mediadir . $_FILES['series-imagefile']['name']; // check for type, set extension
-        move_uploaded_file($_FILES['series-imagefile']['tmp_name'],$imagepath);
-
-        // delete/archive existing, if different
-        // set cover image path in database 
-        
-        $seriesupdate = $this->db->prepare("
-          UPDATE `seriesinfo`
-          SET `imagefile` =:imagefile
-          WHERE `_rowid_`='1';
-        ");
-
-        $seriesupdate->execute(array(':imagefile' => $_FILES['series-imagefile']['name']));
-      }
     }
     
     public function rss() {
