@@ -132,7 +132,7 @@
 
     protected function deleteEpisode($episodeGuid) {
       if ($this->verified) {
-        $query = $this->db->prepare('DELETE FROM episodes WHERE guid=:episode;');
+        $query = $this->db->prepare('DELETE FROM episodes WHERE id=:episode;');
         $query->execute(array(':episode' => $episodeGuid));
         // TODO: delete mp3 (and image file, if unique)
       }
@@ -143,7 +143,7 @@
         $this->deleteEpisode($_POST['delete-episode']);
       }
       if (isset($_GET['episode'])) {
-        $this->episodes = $this->db->prepare('SELECT * FROM episodes WHERE guid = :episode;');
+        $this->episodes = $this->db->prepare('SELECT * FROM episodes WHERE permalink = :episode;');
         $this->episodes->execute(array(':episode' => $_GET['episode']));
       } else {
         if ($this->verified) {
@@ -166,8 +166,8 @@
             while ($episode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT)) {
           ?>
 
-            <div class="edamame-episode" id="edamame-ep-<?= $episode['guid'] ?>">
-              <h3 class="edamame-title"><a href="?episode=<?= $episode['guid'] ?>"><?= $episode['number'] ?> - <?= $episode['title'] ?></a></h3>
+            <div class="edamame-episode" id="edamame-ep-<?= $episode['id'] ?>">
+              <h3 class="edamame-title"><a href="?episode=<?= $episode['permalink'] ?>"><?= $episode['number'] ?> - <?= $episode['title'] ?></a></h3>
               <span class="edamame-timestamp"><?= date('l F jS, Y', $episode['timestamp']); ?></span>
               <div class="edamame-longdesc"><?= str_replace(["\r\n","\n","\r"],"<br />", $episode['longdesc']) ?></div>
               <?php if ($episode['imagefile']) { ?> 
@@ -181,7 +181,7 @@
                 if ($this->verified) {
                   ?>
                   <form enctype="multipart/form-data" method="post" action="">
-                    <input type="hidden" name="delete-episode" value="<?= $episode['guid'] ?>">
+                    <input type="hidden" name="delete-episode" value="<?= $episode['id'] ?>">
                     <input type="submit" value="Delete Episode"/>
                   </form>
                   <?php
@@ -263,6 +263,18 @@
         move_uploaded_file($_FILES['ep-mediafile']['tmp_name'],$mediafullpath);
       }
 
+      $guid = $this::generateGUID();
+      $permalink = $guid;
+      if ($_POST['ep-permalink']) {
+        $permalinkcheck = $this->db->prepare("SELECT count(*) FROM episodes WHERE permalink=:permalink;");
+        $permalinkcheck->execute(array(':permalink' => $_POST['ep-permalink']));
+        $results = $permalinkcheck->fetch(PDO::FETCH_ASSOC);
+
+        if ($results['count(*)'] == 0) {
+          $permalink = $_POST['ep-permalink'];
+        }
+      }
+
       $episodeupdate = $this->db->prepare("
         INSERT INTO `episodes` (
           season,
@@ -278,6 +290,7 @@
           mediasize,
           timestamp,
           duration,
+          permalink,
           guid)
         VALUES (
           :season,
@@ -293,6 +306,7 @@
           :mediasize,
           :timestamp,
           :duration,
+          :permalink,
           :guid);
         ");
 
@@ -310,7 +324,8 @@
         ':mediasize'   => $_POST['ep-mediasize'],
         ':timestamp'   => strtotime($_POST['ep-releasedate'].' '.$_POST['ep-releasetime']),
         ':duration'    => $_POST['ep-duration'],
-        ':guid'        => $this::generateGUID(),
+        ':permalink'   => $permalink,
+        ':guid'        => $guid
       ));
 
     } // writeEpisode
