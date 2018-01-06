@@ -327,8 +327,108 @@
         ':permalink'   => $permalink,
         ':guid'        => $guid
       ));
-
     } // writeEpisode
+
+    protected function editEpisode() {
+      $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
+      $mediadir = $_SERVER['DOCUMENT_ROOT'] . $this->series['mediafolder'];
+
+      $epQuery = $this->db->prepare('SELECT * FROM episodes WHERE id=:id;');
+      $epQuery->exec(array(':id' => $_POST['ep-id']));
+      $episode = $epQuery->fetch(PDO::FETCH_ASSOC);
+
+      $imagefilename = $episode['imagefile'];
+      if ($_FILES['ep-imagefile']['error'] == UPLOAD_ERR_OK) {
+        if ($_POST['ep-imagename']) {
+          $imagefilename = $_POST['ep-imagename'];
+        } else {
+          $imagefilename = $_FILES['ep-imagefile']['name'];
+        }
+        $imagefullpath = $mediadir . $imagefilename; 
+        move_uploaded_file($_FILES['ep-imagefile']['tmp_name'],$imagefullpath);
+      }
+
+      $mediafilename = NULL;
+      if ($_FILES['ep-mediafile']['error'] == UPLOAD_ERR_OK) {
+        if ($_POST['ep-medianame']) {
+          $mediafilename = $_POST['ep-medianame'];
+        } else {
+          $mediafilename = $_FILES['ep-mediafile']['name'];
+        }
+
+        $mediafullpath = $mediadir . $mediafilename;
+        move_uploaded_file($_FILES['ep-mediafile']['tmp_name'],$mediafullpath);
+      }
+
+      $guid = $episode['guid'];
+      $permalink = $guid;
+      if ($_POST['ep-permalink']) {
+        $permalinkcheck = $this->db->prepare("SELECT count(*) FROM episodes WHERE permalink=:permalink;");
+        $permalinkcheck->execute(array(':permalink' => $_POST['ep-permalink']));
+        $results = $permalinkcheck->fetch(PDO::FETCH_ASSOC);
+
+        if ($results['count(*)'] == 0) {
+          $permalink = $_POST['ep-permalink'];
+        }
+      }
+
+      $episodeupdate = $this->db->prepare("
+        UPDATE `episodes` SET (
+          season,
+          number,
+          title,
+          artist,
+          episodetype,
+          shortdesc,
+          longdesc,
+          imagefile,
+          mediafile,
+          mediatype,
+          mediasize,
+          timestamp,
+          duration,
+          permalink,
+          guid)
+        = (
+          :season,
+          :number,
+          :title,
+          :artist,
+          :episodetype,
+          :shortdesc,
+          :longdesc,
+          :imagefile,
+          :mediafile,
+          :mediatype,
+          :mediasize,
+          :timestamp,
+          :duration,
+          :permalink,
+          :guid)
+        WHERE
+          id=:id;
+        ");
+
+      $episodeupdate->execute(array(
+        ':season'      => $_POST['ep-season'],
+        ':number'      => $_POST['ep-number'],
+        ':title'       => $_POST['ep-title'],
+        ':artist'      => $_POST['ep-artist'],
+        ':episodetype' => $_POST['ep-type'],
+        ':shortdesc'   => $_POST['ep-shortdesc'],
+        ':longdesc'    => $_POST['ep-longdesc'],
+        ':imagefile'   => $imagefilename,
+        ':mediafile'   => $mediafilename,
+        ':mediatype'   => 'audio/mpeg',
+        ':mediasize'   => $_POST['ep-mediasize'],
+        ':timestamp'   => strtotime($_POST['ep-releasedate'].' '.$_POST['ep-releasetime']),
+        ':duration'    => $_POST['ep-duration'],
+        ':permalink'   => $permalink,
+        ':guid'        => $guid,
+        ':id'          => $_POST['ep-id']
+      ));
+    } // editEpisode
+
 
     // TODO: this is for testing purposes, delete at some point
     // alt:  call on every page load? preview page?

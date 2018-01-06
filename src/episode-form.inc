@@ -2,6 +2,7 @@
   <h2>Add Episode</h2>
   <form enctype="multipart/form-data" method="post" action="<?= $formTargetPath ?>">
     <input type="hidden" name="form-type" value="episode" />
+    <input type="hidden" name="ep-id" value="" />
 
     <hr>
     <label>MP3 file:<br>
