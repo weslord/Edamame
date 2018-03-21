@@ -31,7 +31,12 @@
     ?>
 
     <item>
-      <title><?= $episode['number'] ?> - <?= $episode["title"]; ?></title>
+      <title>
+      <?php 
+        if ($episode['season']) {
+          echo $episode['season'] . '-';
+        }
+      ?><?= $episode['number'] ?> - <?= $episode["title"]; ?></title>
       <itunes:title><?= $episode["title"] ?></itunes:title>
       <itunes:episodeType><?= $episode["episodetype"] ?></itunes:episodeType>
       <itunes:season><?= $episode["season"] ?></itunes:season>

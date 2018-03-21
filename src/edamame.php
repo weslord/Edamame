@@ -156,43 +156,7 @@
       }
       $mediafolder = $this->db->query('SELECT mediafolder FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
 
-      ?>
-        <div id="edamame-episodes">
-          <h2>
-            Episodes
-          </h2>
-          <?php
-            // reset pointer?
-            while ($episode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT)) {
-          ?>
-
-            <div class="edamame-episode" id="edamame-ep-<?= $episode['id'] ?>">
-              <h3 class="edamame-title"><a href="?episode=<?= $episode['permalink'] ?>"><?= $episode['number'] ?> - <?= $episode['title'] ?></a></h3>
-              <span class="edamame-timestamp"><?= date('l F jS, Y', $episode['timestamp']); ?></span>
-              <div class="edamame-longdesc"><?= str_replace(["\r\n","\n","\r"],"<br />", $episode['longdesc']) ?></div>
-              <?php if ($episode['imagefile']) { ?> 
-                <div class="edamame-imagefile">
-                  <img src="<?= $mediafolder['mediafolder'] . $episode['imagefile']; ?>" width="200px" height="200px"></img>
-                </div>
-              <?php } ?>
-              <audio class="edamame-preview" src="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>" preload="none" controls></audio>
-              <a class="edamame-mediaurl" href="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>">mp3</a>
-              <?php
-                if ($this->verified) {
-                  ?>
-                  <form enctype="multipart/form-data" method="post" action="">
-                    <input type="hidden" name="delete-episode" value="<?= $episode['id'] ?>">
-                    <input type="submit" value="Delete Episode"/>
-                  </form>
-                  <?php
-                }
-              ?>
-            </div>
-
-          <?php } ?>
-
-        </div>
-      <?php
+      include "episode-list.php";
 
     } // listEpisodes
 
@@ -209,7 +173,7 @@
         $mediafolder = $series['mediafolder'] !== NULL ? $series['mediafolder'] : $curdir."/media/";
         $server = $_SERVER['HTTP_HOST'];
         
-        include "series-form.inc";
+        include "series-form.php";
       } else {
         echo "<div class=\"edamame-warning\">Please log in to edit series info</div>";
       }
@@ -226,7 +190,7 @@
         $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
 
         $lastepisode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT);
-        include "episode-form.inc";
+        include "new-episode-form.php";
       } else {
         echo "<div class=\"edamame-warning\">Please log in to edit episode info</div>";
       }
@@ -329,12 +293,12 @@
       ));
     } // writeEpisode
 
-    protected function editEpisode() {
+    protected function updateEpisode() {
       $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
       $mediadir = $_SERVER['DOCUMENT_ROOT'] . $this->series['mediafolder'];
 
       $epQuery = $this->db->prepare('SELECT * FROM episodes WHERE id=:id;');
-      $epQuery->exec(array(':id' => $_POST['ep-id']));
+      $epQuery->execute(array(':id' => $_POST['ep-id']));
       $episode = $epQuery->fetch(PDO::FETCH_ASSOC);
 
       $imagefilename = $episode['imagefile'];
@@ -427,6 +391,25 @@
         ':guid'        => $guid,
         ':id'          => $_POST['ep-id']
       ));
+    } // updateEpisode
+
+    public function editEpisode($formTargetPath = "") {
+      if ($this->verified) {
+        if (isset($_POST['form-type']) && $_POST['form-type'] == "episode") {
+          $this->updateEpisode();
+        }
+
+        $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
+        $series = $this->series;
+
+        $episodeQuery = $this->db->prepare("SELECT * FROM episodes WHERE id=:id;");
+        $episodeQuery->execute(array(':id' => $_GET['id']));
+        $episode = $episodeQuery->fetch(PDO::FETCH_ASSOC);
+
+        include "edit-episode-form.php";
+      } else {
+        echo "<div class=\"edamame-warning\">Please log in to edit episode info</div>";
+      }
     } // editEpisode
 
 
@@ -437,6 +420,8 @@
         $this->writeSeries();
       } else if ($_POST['form-type'] == "episode") {
         $this->writeEpisode();
+      } else if ($_POST['form-type'] == "updateEpisode") {
+        $this->updateEpisode();
       }
     }
 
