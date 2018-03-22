@@ -154,9 +154,13 @@
         $episodes->execute(array(':episode' => $_GET['episode']));
       } else {
         if ($this->verified) {
-          $episodes = $this->db->query('SELECT * FROM episodes ORDER BY timestamp ASC;');
+          $episodes = $this->db->query('SELECT * FROM episodes ORDER BY timestamp DESC;');
         } else {
-          $episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp ASC;');
+          if ($this->series['seriestype'] == 'Serial') {
+            $episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp ASC;');
+          } else {
+            $episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp DESC;');
+          }
           $episodes->execute(array(':now' => date('U')));
         }
       }
