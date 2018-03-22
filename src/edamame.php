@@ -173,6 +173,9 @@
       if ($this->verified) {
         if (isset($_POST['form-type']) && $_POST['form-type'] == "series") {
           $this->writeSeries();
+
+          // get newly updated series info
+          $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
         }
 
         $series = $this->series;
@@ -209,6 +212,8 @@
         }
         $imagefullpath = $this->mediaPath . $imagefilename; 
         move_uploaded_file($_FILES['ep-imagefile']['tmp_name'],$imagefullpath);
+      } else {
+        $imagefilename = $this->series['imagefile'];
       }
 
       $mediafilename = NULL;
@@ -221,6 +226,8 @@
 
         $mediafullpath = $this->mediaPath . $mediafilename;
         move_uploaded_file($_FILES['ep-mediafile']['tmp_name'],$mediafullpath);
+      } else {
+        // no media file
       }
 
       $guid = $this::generateGUID();
@@ -304,6 +311,8 @@
 
         $imagefullpath = $this->mediaPath . $imagefilename; 
         move_uploaded_file($_FILES['ep-imagefile']['tmp_name'],$imagefullpath);
+      } else {
+        $imagefilename = $_POST['ep-imagename'];
       }
 
       $mediafilename = NULL;
@@ -316,6 +325,8 @@
 
         $mediafullpath = $this->mediaPath . $mediafilename;
         move_uploaded_file($_FILES['ep-mediafile']['tmp_name'],$mediafullpath);
+      } else {
+        // no media file
       }
 
       $guid = $episode['guid'];
@@ -415,6 +426,8 @@
         }
         $imagefullpath = $this->mediaPath . $imagefilename; 
         move_uploaded_file($_FILES['series-imagefile']['tmp_name'],$imagefullpath);
+      } else {
+        $imagefilename = $this->series['imagefile'];
       }
 
       $seriesupdate = $this->db->prepare("

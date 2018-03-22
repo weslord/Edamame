@@ -21,7 +21,7 @@
       <img id="series-imagepreview" src="<?= $this->mediaURI . $series['imagefile'] ?>" width="250px" height="250px"/>
     </label><br>
     <label>Image Filename:
-      <input id="series-imagename" name="series-imagename" type="text" readonly />
+      <input id="series-imagename" name="series-imagename" type="text" value='<?= $series['imagefile'] ?>' readonly />
     </label><br>
 
     <label>Type of Series

@@ -25,7 +25,7 @@
       <img id="ep-imagepreview" width='250px' height='250px' src='<?= $this->mediaURI . $series['imagefile'] ?>' />
     </label><br>
     <label>Image filename:
-      <input id="ep-imagename" name="ep-imagename" type="text" readonly />
+      <input id="ep-imagename" name="ep-imagename" type="text" value='<?= $series['imagefile'] ?>' readonly />
     </label><br>
 
     <hr>
