@@ -5,6 +5,10 @@
     <input type="hidden" name="ep-id" value="" />
 
     <hr>
+    <pre>
+      <?= "Max post size: " . ini_get('post_max_size'); ?>
+      <?= "Max file size: " . ini_get('upload_max_filesize'); ?>
+    </pre>
     <label>MP3 file:<br>
       <input id="ep-mediafile" name="ep-mediafile" type="file" accept="audio/mpeg" /><br>
       <audio id="ep-audiopreview" controls ></audio>
