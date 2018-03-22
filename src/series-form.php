@@ -18,7 +18,7 @@
     </label><br>
     <label>Cover image<br>
       <input id="series-imagefile" name="series-imagefile" type="file" accept="image/*"/><br>
-      <img id="series-imagepreview" src="<?= $series['mediafolder'] . $series['imagefile'] ?>" width="250px" height="250px"/>
+      <img id="series-imagepreview" src="<?= $this->mediaURI . $series['imagefile'] ?>" width="250px" height="250px"/>
     </label><br>
     <label>Image Filename:
       <input id="series-imagename" name="series-imagename" type="text" readonly />
@@ -93,11 +93,6 @@
     </label><br>
     <label>Clean<input type="radio" name="series-explicit" value="clean" <?php if ($series['explicit'] == 'clean') { echo 'checked'; } ?> /></label>
     <label>Explicit<input type="radio" name="series-explicit" value="explicit" <?php if ($series['explicit'] == 'explicit') { echo 'checked'; } ?> /></label><br>
-<?php /* 
-    <label>Media Folder
-      <?= $server ?><input name="series-mediafolder" type="text" value="<?= $mediafolder ?>"/>
-    </label><br>
-*/ ?>
     <br><input type="submit" />
   </form>
 </div>

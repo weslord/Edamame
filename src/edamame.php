@@ -4,6 +4,8 @@
     protected $series;
     protected $episodes;
     protected $verified = FALSE;
+    protected $mediaPath;
+    protected $mediaURI;
 
     function __construct($dbpath) {
       if (file_exists($dbpath)) {
@@ -16,7 +18,13 @@
         // this warning is clearly misplaced, need better error system
         echo "<div class=\"edamame-warning\">Database not found.</div>";
       }
-      
+
+      $this->mediaPath = dirname($_SERVER['SCRIPT_FILENAME']) . '/media/';
+
+      $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+      $scriptDir = $scriptDir === '/' ? '' : $scriptDir;
+      $this->mediaURI = $scriptDir . '/media/';
+
     }
 
     protected function setTokens($email,$persistent){
@@ -120,7 +128,7 @@
         <div id="edamame-series-info">
           <h2><?= $this->series['title']; ?></h2>
           <p><?= str_replace(["\r\n","\n","\r"]," <br />", $this->series['longdesc']); ?></p>
-          <img src="<?= $this->series['mediafolder'] . $this->series['imagefile']  ?>" width="250px" height="250px" />
+          <img src="<?= $this->mediaURI . $this->series['imagefile']  ?>" width="250px" height="250px" />
         </div>
       <?php
     } // seriesInfo
@@ -154,7 +162,6 @@
           $this->episodes->execute(array(':now' => date('U')));
         }
       }
-      $mediafolder = $this->db->query('SELECT mediafolder FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
 
       include "episode-list.php";
 
@@ -168,10 +175,6 @@
 
         $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
         $series = $this->series;
-        
-        $curdir = substr(getcwd(),strlen($_SERVER['DOCUMENT_ROOT']));
-        $mediafolder = $series['mediafolder'] !== NULL ? $series['mediafolder'] : $curdir."/media/";
-        $server = $_SERVER['HTTP_HOST'];
         
         include "series-form.php";
       } else {
@@ -197,13 +200,6 @@
     }
 
     protected function writeEpisode() {
-      // CHECK INPUT
-
-      // TODO: this line is repeated... a lot. Move to constructor?
-      //       ... or, make a private functions to getSeries or loadSeries / episodes
-      $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
-      $mediadir = $_SERVER['DOCUMENT_ROOT'] . $this->series['mediafolder'];
-
       $imagefilename = NULL;
       if ($_FILES['ep-imagefile']['error'] == UPLOAD_ERR_OK) {
         if ($_POST['ep-imagename']) {
@@ -211,7 +207,7 @@
         } else {
           $imagefilename = $_FILES['ep-imagefile']['name'];
         }
-        $imagefullpath = $mediadir . $imagefilename; 
+        $imagefullpath = $this->mediaPath . $imagefilename; 
         move_uploaded_file($_FILES['ep-imagefile']['tmp_name'],$imagefullpath);
       }
 
@@ -223,7 +219,7 @@
           $mediafilename = $_FILES['ep-mediafile']['name'];
         }
 
-        $mediafullpath = $mediadir . $mediafilename;
+        $mediafullpath = $this->mediaPath . $mediafilename;
         move_uploaded_file($_FILES['ep-mediafile']['tmp_name'],$mediafullpath);
       }
 
@@ -294,9 +290,6 @@
     } // writeEpisode
 
     protected function updateEpisode() {
-      $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
-      $mediadir = $_SERVER['DOCUMENT_ROOT'] . $this->series['mediafolder'];
-
       $epQuery = $this->db->prepare('SELECT * FROM episodes WHERE id=:id;');
       $epQuery->execute(array(':id' => $_POST['ep-id']));
       $episode = $epQuery->fetch(PDO::FETCH_ASSOC);
@@ -308,7 +301,8 @@
         } else {
           $imagefilename = $_FILES['ep-imagefile']['name'];
         }
-        $imagefullpath = $mediadir . $imagefilename; 
+
+        $imagefullpath = $this->mediaPath . $imagefilename; 
         move_uploaded_file($_FILES['ep-imagefile']['tmp_name'],$imagefullpath);
       }
 
@@ -320,7 +314,7 @@
           $mediafilename = $_FILES['ep-mediafile']['name'];
         }
 
-        $mediafullpath = $mediadir . $mediafilename;
+        $mediafullpath = $this->mediaPath . $mediafilename;
         move_uploaded_file($_FILES['ep-mediafile']['tmp_name'],$mediafullpath);
       }
 
@@ -427,15 +421,6 @@
 
     protected function writeSeries() {
       // TODO: CHECK INPUT
-      // mediafolder should not include dots, should be url, should begin and end with a /,  directory should exist...
-
-      if ($_POST['series-mediafolder']) {
-        $mediafolder = $_POST['series-mediafolder'];
-      } else {
-        $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
-        $mediafolder = $this->series['mediafolder'];
-      }
-      $mediadir = $_SERVER['DOCUMENT_ROOT'] . $mediafolder;
 
       $imagefilename = NULL;
       if ($_FILES['series-imagefile']['error'] == UPLOAD_ERR_OK) {
@@ -444,7 +429,7 @@
         } else {
           $imagefilename = $_FILES['series-imagefile']['name'];
         }
-        $imagefullpath = $mediadir . $imagefilename; 
+        $imagefullpath = $this->mediaPath . $imagefilename; 
         move_uploaded_file($_FILES['series-imagefile']['tmp_name'],$imagefullpath);
       }
 
@@ -462,8 +447,7 @@
             `seriestype`  =:seriestype,
             `category`    =:category,
             `explicit`    =:explicit,
-            `language`    =:language,
-            `mediafolder` =:mediafolder
+            `language`    =:language
         WHERE `_rowid_`='1';");
       // add subcategory
 
@@ -480,8 +464,7 @@
         ':seriestype'  => $_POST['series-type'],
         ':category'    => $_POST['series-category'],
         ':explicit'    => $_POST['series-explicit'],
-        ':language'    => $_POST['series-language'],
-        ':mediafolder' => $mediafolder
+        ':language'    => $_POST['series-language']
       ));
 
     }

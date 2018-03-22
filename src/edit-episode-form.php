@@ -22,7 +22,7 @@
     <hr>
     <label>Cover image:<br>
       <input id="ep-imagefile" name="ep-imagefile" type="file" accept="image/*"/><br>
-      <img id="ep-imagepreview" width='250px' height='250px' src='<?= $series['mediafolder'] . $episode['imagefile'] ?>' />
+      <img id="ep-imagepreview" width='250px' height='250px' src='<?= $this->mediaURI . $episode['imagefile'] ?>' />
     </label><br>
     <label>Image filename:
       <input id="ep-imagename" name="ep-imagename" type="text" readonly value="<?= $episode['imagefile'] ?>" />

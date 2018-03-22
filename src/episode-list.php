@@ -18,11 +18,11 @@
       <div class="edamame-longdesc"><?= str_replace(["\r\n","\n","\r"],"<br />", $episode['longdesc']) ?></div>
       <?php if ($episode['imagefile']) { ?> 
         <div class="edamame-imagefile">
-          <img src="<?= $mediafolder['mediafolder'] . $episode['imagefile']; ?>" width="200px" height="200px"></img>
+          <img src="<?= $this->mediaURI . $episode['imagefile']; ?>" width="200px" height="200px"></img>
         </div>
       <?php } ?>
-      <audio class="edamame-preview" src="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>" preload="none" controls></audio>
-      <a class="edamame-mediaurl" href="<?= $mediafolder['mediafolder'] . $episode['mediafile'] ?>">mp3</a>
+      <audio class="edamame-preview" src="<?= $this->mediaURI . $episode['mediafile'] ?>" preload="none" controls></audio>
+      <a class="edamame-mediaurl" href="<?= $this->mediaURI . $episode['mediafile'] ?>">mp3</a>
       <?php
         if ($this->verified) {
           ?>
