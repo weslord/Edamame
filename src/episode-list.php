@@ -30,6 +30,10 @@
             <input type="hidden" name="delete-episode" value="<?= $episode['id'] ?>">
             <input type="submit" value="Delete Episode"/>
           </form>
+          <form enctype="multipart/form-data" method="get" action="editepisode.php">
+            <input type="hidden" name="episode" value="<?= $episode['id'] ?>">
+            <input type="submit" value="Edit Episode"/>
+          </form>
           <?php
         }
       ?>

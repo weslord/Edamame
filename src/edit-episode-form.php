@@ -1,5 +1,5 @@
 <div>
-  <h2>Add Episode</h2>
+  <h2>Edit Episode</h2>
   <form enctype="multipart/form-data" method="post" action="<?= $formTargetPath ?>">
     <input type="hidden" name="form-type" value="episode" />
     <input type="hidden" name="ep-id" value="<?= $episode['id'] ?>" />
@@ -7,7 +7,7 @@
     <hr>
     <label>MP3 file:<br>
       <input id="ep-mediafile" name="ep-mediafile" type="file" accept="audio/mpeg" /><br>
-      <audio id="ep-audiopreview" controls ></audio>
+      <audio id="ep-audiopreview" src="<?= $this->mediaURI . $episode['mediafile'] ?>" controls ></audio>
     </label><br>
     <label>Length: (HH:MM:SS)
       <input id="ep-duration" name="ep-duration" type="text" readonly value="<?= $episode['duration'] ?>" />
@@ -52,8 +52,8 @@
       </select>
     </label><br>
     <label>Release Date:<br>
-      <input name="ep-releasedate" type="date" value="<?= date('Y-m-d'); //['timestamp'] ?>"/>
-      <input name="ep-releasetime" type="time" value="00:00"/>
+      <input name="ep-releasedate" type="date" value="<?= date('Y-m-d', $episode['timestamp']); ?>"/>
+      <input name="ep-releasetime" type="time" value="<?= date('H:i', $episode['timestamp']); ?>"/>
     </label><br><br>
     <label>Episode Permalink:
       <br>(Valid characters: 'A-Z', 'a-z', '0-9', '_' and '-')<br>

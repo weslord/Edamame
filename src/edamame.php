@@ -227,6 +227,7 @@
         $mediafullpath = $this->mediaPath . $mediafilename;
         move_uploaded_file($_FILES['ep-mediafile']['tmp_name'],$mediafullpath);
       } else {
+        echo $_FILES['ep-mediafile']['error'];
         // no media file
       }
 
@@ -326,12 +327,16 @@
         $mediafullpath = $this->mediaPath . $mediafilename;
         move_uploaded_file($_FILES['ep-mediafile']['tmp_name'],$mediafullpath);
       } else {
-        // no media file
+        $mediafilename = $_POST['ep-medianame'];
       }
 
       $guid = $episode['guid'];
       $permalink = $guid;
       if ($_POST['ep-permalink']) {
+        $permalink = $_POST['ep-permalink'];
+
+        // false-positives for own permalink...
+        /*
         $permalinkcheck = $this->db->prepare("SELECT count(*) FROM episodes WHERE permalink=:permalink;");
         $permalinkcheck->execute(array(':permalink' => $_POST['ep-permalink']));
         $results = $permalinkcheck->fetch(PDO::FETCH_ASSOC);
@@ -339,6 +344,7 @@
         if ($results['count(*)'] == 0) {
           $permalink = $_POST['ep-permalink'];
         }
+        */
       }
 
       $episodeupdate = $this->db->prepare("
@@ -407,7 +413,7 @@
         $series = $this->series;
 
         $episodeQuery = $this->db->prepare("SELECT * FROM episodes WHERE id=:id;");
-        $episodeQuery->execute(array(':id' => $_GET['id']));
+        $episodeQuery->execute(array(':id' => $_GET['episode']));
         $episode = $episodeQuery->fetch(PDO::FETCH_ASSOC);
 
         include "edit-episode-form.php";
