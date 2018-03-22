@@ -4,7 +4,7 @@
   </h2>
   <?php
     // reset pointer?
-    while ($episode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT)) {
+    while ($episode = $episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT)) {
   ?>
 
     <div class="edamame-episode" id="edamame-ep-<?= $episode['id'] ?>">

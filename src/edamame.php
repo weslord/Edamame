@@ -2,7 +2,6 @@
   class Edamame {
     protected $db;
     protected $series;
-    protected $episodes;
     protected $verified = FALSE;
     protected $mediaPath;
     protected $mediaURI;
@@ -18,6 +17,8 @@
         // this warning is clearly misplaced, need better error system
         echo "<div class=\"edamame-warning\">Database not found.</div>";
       }
+
+      $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
 
       $this->mediaPath = dirname($_SERVER['SCRIPT_FILENAME']) . '/media/';
 
@@ -123,7 +124,6 @@
     }
 
     public function seriesInfo() {
-      $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
       ?>
         <div id="edamame-series-info">
           <h2><?= $this->series['title']; ?></h2>
@@ -151,15 +151,15 @@
         $this->deleteEpisode($_POST['delete-episode']);
       }
       if (isset($_GET['episode'])) {
-        $this->episodes = $this->db->prepare('SELECT * FROM episodes WHERE permalink = :episode;');
-        $this->episodes->execute(array(':episode' => $_GET['episode']));
+        $episodes = $this->db->prepare('SELECT * FROM episodes WHERE permalink = :episode;');
+        $episodes->execute(array(':episode' => $_GET['episode']));
       } else {
         if ($this->verified) {
           // TODO: set order based on episodic vs serial
-          $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY timestamp ASC;');
+          $episodes = $this->db->query('SELECT * FROM episodes ORDER BY timestamp ASC;');
         } else {
-          $this->episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp ASC;');
-          $this->episodes->execute(array(':now' => date('U')));
+          $episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp ASC;');
+          $episodes->execute(array(':now' => date('U')));
         }
       }
 
@@ -173,7 +173,6 @@
           $this->writeSeries();
         }
 
-        $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
         $series = $this->series;
         
         include "series-form.php";
@@ -188,11 +187,10 @@
           $this->writeEpisode();
         }
 
-        $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
         $series = $this->series;
-        $this->episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
+        $episodes = $this->db->query('SELECT * FROM episodes ORDER BY number DESC;');
+        $lastepisode = $episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT);
 
-        $lastepisode = $this->episodes->fetch(PDO::FETCH_ASSOC,PDO::FETCH_ORI_NEXT);
         include "new-episode-form.php";
       } else {
         echo "<div class=\"edamame-warning\">Please log in to edit episode info</div>";
@@ -393,7 +391,6 @@
           $this->updateEpisode();
         }
 
-        $this->series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
         $series = $this->series;
 
         $episodeQuery = $this->db->prepare("SELECT * FROM episodes WHERE id=:id;");
