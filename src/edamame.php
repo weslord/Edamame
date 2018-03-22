@@ -347,42 +347,32 @@
         */
       }
 
+      $this->db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
+
       $episodeupdate = $this->db->prepare("
-        UPDATE `episodes` SET (
-          season,
-          number,
-          title,
-          artist,
-          episodetype,
-          shortdesc,
-          longdesc,
-          imagefile,
-          mediafile,
-          mediatype,
-          mediasize,
-          timestamp,
-          duration,
-          permalink,
-          guid)
-        = (
-          :season,
-          :number,
-          :title,
-          :artist,
-          :episodetype,
-          :shortdesc,
-          :longdesc,
-          :imagefile,
-          :mediafile,
-          :mediatype,
-          :mediasize,
-          :timestamp,
-          :duration,
-          :permalink,
-          :guid)
+        UPDATE 'episodes' SET
+          season      = :season,
+          number      = :number,
+          title       = :title,
+          artist      = :artist,
+          episodetype = :episodetype,
+          shortdesc   = :shortdesc,
+          longdesc    = :longdesc,
+          imagefile   = :imagefile,
+          mediafile   = :mediafile,
+          mediatype   = :mediatype,
+          mediasize   = :mediasize,
+          timestamp   = :timestamp,
+          duration    = :duration,
+          permalink   = :permalink,
+          guid        = :guid
         WHERE
-          id=:id;
+          id          = :id;
         ");
+
+      if (!$episodeupdate) {
+        print_r($this->db->errorInfo());
+      }
 
       $episodeupdate->execute(array(
         ':season'      => $_POST['ep-season'],
