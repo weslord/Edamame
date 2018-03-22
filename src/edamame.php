@@ -142,7 +142,6 @@
       if ($this->verified) {
         $query = $this->db->prepare('DELETE FROM episodes WHERE id=:episode;');
         $query->execute(array(':episode' => $episodeGuid));
-        // TODO: delete mp3 (and image file, if unique)
       }
     }
 
@@ -155,7 +154,6 @@
         $episodes->execute(array(':episode' => $_GET['episode']));
       } else {
         if ($this->verified) {
-          // TODO: set order based on episodic vs serial
           $episodes = $this->db->query('SELECT * FROM episodes ORDER BY timestamp ASC;');
         } else {
           $episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp ASC;');
@@ -403,22 +401,7 @@
       }
     } // editEpisode
 
-
-    // TODO: this is for testing purposes, delete at some point
-    // alt:  call on every page load? preview page?
-    public function writeData() {
-      if ($_POST['form-type'] == "series") {
-        $this->writeSeries();
-      } else if ($_POST['form-type'] == "episode") {
-        $this->writeEpisode();
-      } else if ($_POST['form-type'] == "updateEpisode") {
-        $this->updateEpisode();
-      }
-    }
-
     protected function writeSeries() {
-      // TODO: CHECK INPUT
-
       $imagefilename = NULL;
       if ($_FILES['series-imagefile']['error'] == UPLOAD_ERR_OK) {
         if ($_POST['series-imagename']) {
@@ -468,7 +451,6 @@
     
     public function rss() {
       $series = $this->db->query('SELECT * FROM seriesinfo;')->fetch(PDO::FETCH_ASSOC);
-      // TODO: filter out future episodes
       $episodes = $this->db->prepare('SELECT * FROM episodes WHERE timestamp < :now ORDER BY timestamp DESC;');
       $episodes->execute(array(':now' => date('U')));
       include "feed.rss";
