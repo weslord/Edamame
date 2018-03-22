@@ -2,9 +2,10 @@ CREATE TABLE admin (
   id INTEGER PRIMARY KEY,
   email TEXT,
   password TEXT,
-  token TEXT,
-  timestamp INTEGER, -- rename to tokentime, or expiry?
-  persistent bool
+  sessiontoken TEXT,
+  sessionexpires INTEGER,
+  persistenttoken TEXT,
+  persistentexpires INTEGER
 );
 CREATE TABLE episodes (
   id INTEGER PRIMARY KEY AUTOINCREMENT, -- autoincrement not required -- is this forward-facing?

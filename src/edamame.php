@@ -29,35 +29,106 @@
     }
 
     protected function setTokens($email, $persistent) {
-      /*
+      $cookieExpires = 0;
       if ($persistent) {
         $persistentToken = bin2hex(random_bytes(32));
         $persistentHashedToken = hash("sha256",$persistentToken);
 
-        $persistentExpires = time()+60*60*24*7;
-        $cookieExpires = time()+60*60*24*7;
+        $persistentExpires = time()+60*60*24*36;
+        $cookieExpires = $persistentExpires;
 
         setcookie("edamame-admin-persistent-token", $persistentToken, $cookieExpires);
-        setcookie("edamame-admin-email", $email, $cookieExpires);
 
         $query = $this->db->prepare('UPDATE admin SET persistenttoken = :token, persistentexpires = :expires WHERE email = :email;');
-        $query->execute(array(':token' => $persistentHashedToken, ':expires' => $tokenExpires, ':email' => $email));
+        $query->execute(array(':token' => $persistentHashedToken, ':expires' => $persistentExpires, ':email' => $email));
       }
-      */
+
       $sessionToken = bin2hex(random_bytes(32));
       $sessionHashedToken = hash("sha256", $sessionToken);
 
       $sessionExpires = time()+60*60*2;
 
       setcookie("edamame-admin-session-token", $sessionToken, 0);
-      setcookie("edamame-admin-email", $email, 0);
+      setcookie("edamame-admin-email", $email, $cookieExpires);
 
-      //$query = $this->db->prepare('UPDATE admin SET sessiontoken = :token, sessionexpires = :expires WHERE email = :email;');
-      $query = $this->db->prepare('UPDATE admin SET token = :token, timestamp = :expires WHERE email = :email;');
+      $query = $this->db->prepare('UPDATE admin SET sessiontoken = :token, sessionexpires = :expires WHERE email = :email;');
       $query->execute(array(':token' => $sessionHashedToken, ':expires' => $sessionExpires, ':email' => $email));
     }
 
+    protected function tokenCheck($type) {
+      $cookieKey =  'edamame-admin-' . $type . '-token';
+      $tokenCookie = $_COOKIE[$cookieKey];
+
+      $email = $_COOKIE['edamame-admin-email'];
+
+      if (isset($tokenCookie) && $tokenCookie ) {
+        $userTokenHash = hash("sha256", $tokenCookie);
+
+        $tokentype = $type . 'token';
+        $expirestype = $type . 'expires';
+
+        if ($type === 'persistent') {
+          $query = $this->db->prepare('SELECT persistenttoken, persistentexpires FROM admin WHERE email = :email;');
+        } else if ($type === 'session') {
+          $query = $this->db->prepare('SELECT sessiontoken, sessionexpires FROM admin WHERE email = :email;');
+        }
+        $query->execute(array(':email' => $email));
+        $results = $query->fetch(PDO::FETCH_ASSOC);
+        $dbTokenHash = $results[$tokentype];
+        $tokenExpires = $results[$expirestype];
+
+        if ($dbTokenHash && $tokenExpires > time() && hash_equals($dbTokenHash, $userTokenHash)) {
+          return TRUE;
+        }
+      }
+      return FALSE;
+    }
+
+    protected function loggingOut() {
+      if (isset($_POST['login']) && $_POST['login'] == "Log Out"){
+        $query = $this->db->prepare('UPDATE admin SET sessiontoken = null, sessionexpires = null WHERE email = :email');
+        $query->execute(array(':email' => $email));
+
+        setcookie("edamame-admin-session-token",NULL,time()-3600);
+        setcookie("edamame-admin-persistent-token",NULL,time()-3600);
+        setcookie("edamame-admin-email",NULL,time()-3600);
+
+        return TRUE;
+      } else {
+        return FALSE;
+      }
+    }
+
     protected function adminVerify() {
+      $this->verified = FALSE;
+      $email = $_COOKIE['edamame-admin-email'];
+
+      if ( $this->tokenCheck('session') ) {
+        if ( $this->loggingOut() ) {
+          return;
+        }
+
+        $sessionExpires = time()+60*60*2;
+        $query = $this->db->prepare('UPDATE admin SET sessionexpires = :expires WHERE email = :email;');
+        $query->execute(array(':expires' => $sessionExpires, ':email' => $email));
+
+        $this->verified = TRUE;
+        return;
+      }
+
+
+      if ( $this->tokenCheck('persistent') ) {
+        if ( $this->loggingOut() ) {
+          return;
+        }
+
+        $this->setTokens($email, TRUE);
+
+        $this->verified = TRUE;
+        return;
+      }
+
+
       if (isset($_POST['login']) && $_POST['login'] == "Log In"){
         $email = $_POST['email'];
         $formPass = $_POST['password'];
@@ -69,57 +140,14 @@
         if (password_verify($formPass, $dbPass)){
           $this->setTokens($email, $_POST['remember']);
           $this->verified = TRUE;
-        } else {
-          $this->verified = FALSE;
         }
-        
-      } else if (isset($_COOKIE['edamame-admin-session-token']) && $_COOKIE['edamame-admin-session-token']) {
-        $userSessionToken = hash("sha256", $_COOKIE['edamame-admin-session-token']);
-        $email = $_COOKIE['edamame-admin-email'];
-
-        //$query = $this->db->prepare('SELECT sessiontoken, sessionexpires FROM admin WHERE email =: email;');
-        $query = $this->db->prepare('SELECT token, timestamp FROM admin WHERE email = :email;');
-        $query->execute(array(':email'=>$email));
-        $results = $query->fetch(PDO::FETCH_ASSOC);
-        //$dbSessionToken = $results['sessiontoken'];
-        $dbSessionToken = $results['token'];
-        //$sessionExpires = $results['sessionexpires'];
-        $sessionExpires = $results['timestamp'];
-
-        if ($dbSessionToken && $sessionExpires > time() && hash_equals($dbSessionToken, $userSessionToken)) {
-          if (isset($_POST['login']) && $_POST['login'] == "Log Out"){
-            //$query = $this->db->prepare('UPDATE admin SET sessiontoken = null, sessionexpires = null WHERE email =: email');
-            $query = $this->db->prepare('UPDATE admin SET token = null, timestamp = null WHERE email = :email');
-            $query->execute(array(':email' => $email));
-
-            setcookie("edamame-admin-session-token",NULL,time()-3600);
-            setcookie("edamame-admin-email",NULL,time()-3600);
-
-            $this->verified = FALSE;
-          } else {
-            // $this->setTokens($email, $persistent);
-            // $this->renewTokens($email, $persistent);
-
-            $sessionExpires = time()+60*60*2;
-            $query = $this->db->prepare('UPDATE admin SET timestamp = :expires WHERE email = :email;');
-            $query->execute(array(':expires' => $sessionExpires, ':email' => $email));
-            $this->verified = TRUE;
-          }
-        } else {
-         // test persistent token <- ???
-         // are there valid states where there'd be a bad existing session but good persistent?
-         $this->verified = FALSE;
-        }
-      } else {
-        // test persistent token.
-        $this->verified = FALSE;
       }
     }
-    
+
     public function adminStatus() {
       return $this->verified;
     }
-    
+
     public function adminLogin() {
       if ($this->verified){
         ?>
