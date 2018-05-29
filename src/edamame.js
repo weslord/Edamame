@@ -59,4 +59,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
+  if (document.location.host.indexOf('.test')) {
+    // is a test server
+    document.querySelector('body').classList.add('test');
+  }
 });

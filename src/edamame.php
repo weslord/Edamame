@@ -449,7 +449,7 @@
 
         $series = $this->series;
 
-        $episodeQuery = $this->db->prepare("SELECT * FROM episodes WHERE id=:id;");
+        $episodeQuery = $this->db->prepare("SELECT * FROM episodes WHERE id = :id;");
         $episodeQuery->execute(array(':id' => $_GET['episode']));
         $episode = $episodeQuery->fetch(PDO::FETCH_ASSOC);
 
