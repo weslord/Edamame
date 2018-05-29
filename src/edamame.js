@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  if (document.location.host.indexOf('.test')) {
+  if (document.location.host.indexOf('.test') > -1) {
     // is a test server
     document.querySelector('body').classList.add('test');
   }

@@ -16,7 +16,7 @@
       ?><?= $episode['number'] ?> - <?= $episode['title'] ?></a></h3>
       <span class="edamame-timestamp"><?= date('l F jS, Y', $episode['timestamp']); ?></span>
       <div class="edamame-longdesc"><?= str_replace(["\r\n","\n","\r"],"<br />", $episode['longdesc']) ?></div>
-      <?php if ($episode['imagefile']) { ?> 
+      <?php if ($episode['imagefile'] && ($episode['imagefile'] !== $this->series['imagefile'])) { ?> 
         <div class="edamame-imagefile">
           <img src="<?= $this->mediaURI . $episode['imagefile']; ?>" width="200px" height="200px"></img>
         </div>
