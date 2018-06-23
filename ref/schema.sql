@@ -1,14 +1,31 @@
 CREATE TABLE admin (
-  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  id INTEGER PRIMARY KEY UNIQUE NOT NULL,
   email TEXT NOT NULL,
-  password TEXT NULL,
+  password TEXT NOT NULL,
   sessiontoken TEXT,
-  sessionexpires TEXT,
+  sessionexpires INTEGER,
   persistenttoken TEXT,
-  persistentexpires TEXT
+  persistentexpires INTEGER
+);
+CREATE TABLE seriesinfo (
+  id INTEGER PRIMARY KEY UNIQUE NOT NULL,
+  title TEXT,
+  artist TEXT,
+  copyright TEXT,
+  url TEXT,
+  owner TEXT,
+  email TEXT,
+  shortdesc TEXT,
+  longdesc TEXT,
+  imagefile TEXT,
+  category TEXT,
+  subcategory TEXT,
+  explicit TEXT,
+  language TEXT,
+  seriestype TEXT
 );
 CREATE TABLE episodes (
-  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  id INTEGER PRIMARY KEY UNIQUE NOT NULL,
   season INTEGER,
   number INTEGER,
   title TEXT,
@@ -24,21 +41,4 @@ CREATE TABLE episodes (
   duration INTEGER,
   permalink TEXT UNIQUE,
   guid TEXT UNIQUE
-);
-CREATE TABLE seriesinfo (
-  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-  title TEXT,
-  artist TEXT,
-  copyright TEXT,
-  url TEXT,
-  owner TEXT,
-  email TEXT,
-  shortdesc TEXT,
-  longdesc TEXT,
-  imagefile TEXT,
-  category TEXT,
-  subcategory TEXT,
-  explicit TEXT,
-  language TEXT,
-  seriestype TEXT
 );
