@@ -1,8 +1,16 @@
 # Edamame
-Minimalistic PHP-based podcast engine library
+A basic podcast hosting engine
 
-**Currently in early stage of development, not ready for external use.**
+## In The Wild
+These podcasts run on Edamame:
 
-Requires PHP 7.0 or higher.
+* [Spout Lore](https://spoutlore.com)
+* [Must Be Nice](https://mustbenicepod.com)
+* [The Mash](https://fisgardlabs.com/podcasts/mashcast)
 
-**Seriously, don't use this code... it's like 30% done at best.**
+## Requirements
+* PHP 7.0 or higher
+* SQLite 3
+
+## Suggested Pairing
+Try with [Vanilla Audio](https://github.com/weslord/VanillaAudioJS) for customizable audio control elements.
