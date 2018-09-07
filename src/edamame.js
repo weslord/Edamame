@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
   var imageNameTag_s = document.querySelector("#series-imagename");
   var imagePreviewTag_s = document.querySelector("#series-imagepreview");
 
-  var fileNameRegex = /\ /g;
+  var fileNameRegex = / /g;
 
   if (mediaFileTag) {
     mediaFileTag.addEventListener("change", function() {
